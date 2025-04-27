@@ -1,15 +1,22 @@
 import { useState } from "react";
 import { useDashboardStore } from "./dashboardStore";
 import { Dashboard } from "./Dashboard";
-import { realAgentCall } from "./openaiAgent";
 import { AgentRunner } from "./AgentRunner";
-import { agentFunctions } from "./agentFunctions";
-import { availableTools } from "./agentFunctions";
+import { Tools } from "./tools";
 
 const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
 if (!apiKey) {
   console.error("OpenAI API key not found in environment variables");
 }
+
+const toolList = Object.values(Tools).map((tool) => ({
+  type: "function" as const,
+  function: tool.schema,
+}));
+
+const toolFunctions = Object.fromEntries(
+  Object.entries(Tools).map(([name, tool]) => [name, tool.handler])
+);
 
 const dashboardAgent = new AgentRunner({
   apiKey: apiKey,
@@ -20,8 +27,8 @@ const dashboardAgent = new AgentRunner({
   Available module types are: portfolioChart, expensesTable, netWorthSummary
 
   If a tool response contains {error: "timeout"}, you may attempt to retry once.`,
-  tools: availableTools,
-  toolFunctions: agentFunctions,
+  tools: toolList,
+  toolFunctions: toolFunctions,
   toolTimeoutMs: 5000,
 });
 

@@ -1,10 +1,11 @@
+import { useDashboardStore } from "./dashboardStore";
 import { defineTool } from "./ToolUtils";
 
 export const Tools = {
-  addModule: defineTool<{ moduleType: string; config: object }>(
+  addModule: defineTool(
     {
       name: "addModule",
-      description: "Add a new module",
+      description: "Add a new dashboard module",
       parameters: {
         type: "object",
         properties: {
@@ -14,17 +15,15 @@ export const Tools = {
         required: ["moduleType", "config"],
       },
     },
-    async (args) => {
-      // args is now strongly typed as { moduleType: string; config: object }
-      console.log("Adding module:", args.moduleType, args.config);
-      return { status: "success", moduleId: "new-" + Date.now() };
+    async (module: { moduleType: string; config: any }) => {
+      console.log(module.moduleType);
+      useDashboardStore.getState().addModule(module.moduleType, module.config);
     }
   ),
-
-  removeModule: defineTool<{ moduleId: string }>(
+  removeModule: defineTool(
     {
       name: "removeModule",
-      description: "Remove a module",
+      description: "Remove a module by ID",
       parameters: {
         type: "object",
         properties: {
@@ -33,16 +32,14 @@ export const Tools = {
         required: ["moduleId"],
       },
     },
-    async (args) => {
-      console.log("Removing module:", args.moduleId);
-      return { status: "success" };
+    async ({ moduleId }: { moduleId: string }) => {
+      useDashboardStore.getState().removeModule(moduleId);
     }
   ),
-
-  updateModuleConfig: defineTool<{ moduleId: string; newConfig: object }>(
+  updateModuleConfig: defineTool(
     {
       name: "updateModuleConfig",
-      description: "Update module configuration",
+      description: "Update the configuration of an existing module",
       parameters: {
         type: "object",
         properties: {
@@ -52,9 +49,75 @@ export const Tools = {
         required: ["moduleId", "newConfig"],
       },
     },
-    async (args) => {
-      console.log("Updating module:", args.moduleId, args.newConfig);
-      return { status: "success" };
+    async ({ moduleId, newConfig }: { moduleId: string; newConfig: any }) => {
+      useDashboardStore.getState().updateModuleConfig(moduleId, newConfig);
     }
   ),
 };
+
+// // Functions available to the agent
+// export const agentFunctions = {
+//   addModule: async (module: { moduleType: string; config: any }) => {
+//     console.log(module.moduleType);
+//     useDashboardStore.getState().addModule(module.moduleType, module.config);
+//   },
+//   removeModule: async ({ moduleId }: { moduleId: string }) => {
+//     useDashboardStore.getState().removeModule(moduleId);
+//   },
+//   updateModuleConfig: async ({
+//     moduleId,
+//     newConfig,
+//   }: {
+//     moduleId: string;
+//     newConfig: any;
+//   }) => {
+//     useDashboardStore.getState().updateModuleConfig(moduleId, newConfig);
+//   },
+// };
+
+// export const availableTools = [
+//   {
+//     type: "function",
+//     function: {
+//       name: "addModule",
+//       description: "Add a new dashboard module",
+//       parameters: {
+//         type: "object",
+//         properties: {
+//           moduleType: { type: "string" },
+//           config: { type: "object" },
+//         },
+//         required: ["moduleType", "config"],
+//       },
+//     },
+//   },
+//   {
+//     type: "function",
+//     function: {
+//       name: "removeModule",
+//       description: "Remove a module by ID",
+//       parameters: {
+//         type: "object",
+//         properties: {
+//           moduleId: { type: "string" },
+//         },
+//         required: ["moduleId"],
+//       },
+//     },
+//   },
+//   {
+//     type: "function",
+//     function: {
+//       name: "updateModuleConfig",
+//       description: "Update the configuration of an existing module",
+//       parameters: {
+//         type: "object",
+//         properties: {
+//           moduleId: { type: "string" },
+//           newConfig: { type: "object" },
+//         },
+//         required: ["moduleId", "newConfig"],
+//       },
+//     },
+//   },
+// ];
