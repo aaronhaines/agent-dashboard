@@ -2,6 +2,28 @@ import { useState } from "react";
 import { useDashboardStore } from "./dashboardStore";
 import { Dashboard } from "./Dashboard";
 import { realAgentCall } from "./openaiAgent";
+import { AgentRunner } from "./AgentRunner";
+import { agentFunctions } from "./agentFunctions";
+import { availableTools } from "./agentFunctions";
+
+const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+if (!apiKey) {
+  console.error("OpenAI API key not found in environment variables");
+}
+
+const dashboardAgent = new AgentRunner({
+  apiKey: apiKey,
+  systemPrompt: `You are an intelligent financial dashboard assistant. 
+  The dashboard consists of modules (charts, tables, summaries). 
+  You can add, remove, or update modules based on the user's input.
+
+  Available module types are: portfolioChart, expensesTable, netWorthSummary
+
+  If a tool response contains {error: "timeout"}, you may attempt to retry once.`,
+  tools: availableTools,
+  toolFunctions: agentFunctions,
+  toolTimeoutMs: 5000,
+});
 
 export default function App() {
   const [userPrompt, setUserPrompt] = useState("");
@@ -17,7 +39,7 @@ export default function App() {
         config,
       }));
 
-    const agentResponse = await realAgentCall(userPrompt, snapshot);
+    const agentResponse = await dashboardAgent.run(userPrompt, snapshot);
     console.log("Agent final message:", agentResponse);
 
     setUserPrompt("");

@@ -58,7 +58,7 @@ export async function realAgentCall(
     // If model wants to call tools
     if (choice.finish_reason === "tool_calls" && choice.message.tool_calls) {
       // Map all tool calls to promises
-      const TOOL_TIMEOUT_MS = 5000; // e.g., 5 seconds timeout per tool
+      const TOOL_TIMEOUT_MS = 5000; // 5 seconds timeout per tool
 
       const toolCallPromises = choice.message.tool_calls.map(
         async (toolCall) => {

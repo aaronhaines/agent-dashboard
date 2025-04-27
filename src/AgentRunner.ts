@@ -20,7 +20,10 @@ export class AgentRunner {
   private toolTimeoutMs: number;
 
   constructor(options: AgentRunnerOptions) {
-    this.openai = new OpenAI({ apiKey: options.apiKey });
+    this.openai = new OpenAI({
+      apiKey: options.apiKey,
+      dangerouslyAllowBrowser: true,
+    });
     this.model = options.model || "gpt-4o";
     this.systemPrompt = options.systemPrompt;
     this.tools = options.tools;
@@ -43,7 +46,9 @@ export class AgentRunner {
     const messages: OpenAI.ChatCompletionMessageParam[] = [
       {
         role: "system",
-        content: `${this.systemPrompt}\n\nContext:\n${JSON.stringify(
+        content: `${
+          this.systemPrompt
+        }\n\nCurrent dashboard state::\n${JSON.stringify(
           contextSnapshot,
           null,
           2
