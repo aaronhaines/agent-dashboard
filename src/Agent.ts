@@ -60,7 +60,7 @@ export class Agent {
     // Step 1: Ask the agent to generate a plan (chain of thought)
     messages[0].content = `${
       this.systemPrompt
-    }\n\nYou must first respond with a step-by-step plan (chain of thought) for how you will answer the user's request. Do not execute any tools yet. Begin your response with 'Plan:' and enumerate the steps.\n\nConversation history scratchpad::\n${JSON.stringify(
+    }\n\nConversation history scratchpad::\n${JSON.stringify(
       scratchpad,
       null,
       2
@@ -78,7 +78,6 @@ export class Agent {
     const planMessage = planResponse.choices[0].message.content || "";
     scratchpad += `\nAgent plan:\n${planMessage}\n`;
     messages.push({ role: "assistant", content: planMessage });
-    console.log(planMessage);
 
     // Step 2: Execute the plan (allow tool calls)
     while (true) {
