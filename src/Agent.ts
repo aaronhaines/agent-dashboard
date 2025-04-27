@@ -43,6 +43,31 @@ export class Agent {
     return Promise.race([promise, timeout]);
   }
 
+  // Helper to summarize long scratchpad history
+  private async summarizeScratchpad(scratchpad: string): Promise<string> {
+    // Only summarize if over 2000 chars
+    if (scratchpad.length <= 2000) return scratchpad;
+    // Keep the last 1000 chars verbatim
+    const recent = scratchpad.slice(-1000);
+    const toSummarize = scratchpad.slice(0, -1000);
+    const prompt = `Summarize the following agent scratchpad history for context, focusing on key actions, tool calls, and results. Be concise but preserve important details.\n\nHistory:\n${toSummarize}`;
+    const response = await this.openai.chat.completions.create({
+      model: this.model,
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are a helpful assistant that summarizes agent reasoning and tool call history.",
+        },
+        { role: "user", content: prompt },
+      ],
+      temperature: 0,
+      max_tokens: 256,
+    });
+    const summary = response.choices[0].message.content || "";
+    return `Summary of earlier history: ${summary}\n\nRecent history:\n${recent}`;
+  }
+
   public async run(
     userPrompt: string,
     history: { role: "user" | "agent"; content: string }[]
@@ -90,6 +115,9 @@ ${JSON.stringify(scratchpad, null, 2)}`;
 
     // Step 2: Execute the plan (allow tool calls)
     while (true) {
+      // Summarize scratchpad if too long
+      scratchpad = await this.summarizeScratchpad(scratchpad);
+
       // Always get the latest dashboard state
       const latestSnapshot = useDashboardStore
         .getState()
