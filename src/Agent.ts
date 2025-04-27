@@ -84,8 +84,10 @@ export class Agent {
             }
 
             try {
+              const tool = this.tools[name];
+              const validatedArgs = tool.schema.parse(args);
               const toolResult = await this.callWithTimeout(
-                toolFn(args),
+                toolFn(validatedArgs),
                 this.toolTimeoutMs
               );
 

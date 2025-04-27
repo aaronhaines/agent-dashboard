@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 type ToolSchema<Props extends Record<string, any>> = {
   name: string;
   description: string;
@@ -10,14 +12,18 @@ type ToolSchema<Props extends Record<string, any>> = {
   };
 };
 
-type ToolDefinition<Props extends Record<string, any>> = {
-  schema: ToolSchema<Props>;
-  handler: (args: Props) => Promise<any>;
+type ToolDefinition<Props extends z.ZodTypeAny> = {
+  name: string;
+  description: string;
+  schema: z.ZodObject<any>; // Zod schema
+  handler: (args: z.infer<Props>) => Promise<any>;
 };
 
-export function defineTool<Props extends Record<string, any>>(
-  schema: ToolSchema<Props>,
-  handler: (args: Props) => Promise<any>
+export function defineTool<Props extends z.ZodTypeAny>(
+  name: string,
+  description: string,
+  schema: Props,
+  handler: (args: z.infer<Props>) => Promise<any>
 ): ToolDefinition<Props> {
-  return { schema, handler };
+  return { name, description, schema, handler };
 }

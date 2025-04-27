@@ -3,15 +3,24 @@ import { useDashboardStore } from "./dashboardStore";
 import { Dashboard } from "./Dashboard";
 import { Agent } from "./Agent";
 import { Tools } from "./tools";
+import { z } from "zod";
 
 const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
 if (!apiKey) {
   console.error("OpenAI API key not found in environment variables");
 }
 
+function zodToJsonSchema(schema: z.ZodTypeAny): any {
+  return schema._def.jsonSchema ?? {}; // or real transform logic
+}
+
 const toolList = Object.values(Tools).map((tool) => ({
   type: "function" as const,
-  function: tool.schema,
+  function: {
+    name: tool.name,
+    description: tool.description,
+    parameters: zodToJsonSchema(tool.schema),
+  },
 }));
 
 const toolFunctions = Object.fromEntries(
