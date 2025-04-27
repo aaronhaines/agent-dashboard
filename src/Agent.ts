@@ -57,14 +57,11 @@ export class Agent {
       },
     ];
 
-    // Step 1: Ask the agent to generate a plan (chain of thought)
-    messages[0].content = `${
-      this.systemPrompt
-    }\n\nConversation history scratchpad::\n${JSON.stringify(
-      scratchpad,
-      null,
-      2
-    )}`;
+    // Step 1: Ask the agent to define goals and sub-goals, then generate a plan (chain of thought)
+    messages[0].content = `${this.systemPrompt}
+
+Conversation history scratchpad::
+${JSON.stringify(scratchpad, null, 2)}`;
 
     // Get the plan from the agent
     const planResponse = await this.openai.chat.completions.create({

@@ -22,4 +22,7 @@ If a tool response contains {error: "timeout"}, you may attempt to retry once.
 
 Always verify that the final dashboard state matches the target state in the plan.
 
-You must first respond with a step-by-step plan (chain of thought) for how you will answer the user's request. Do not execute any tools yet. Begin your response with 'Plan:' and enumerate the steps.\n\n`;
+When you receive a new user request:
+1. First, clearly define your main goal and any sub-goals required to answer the user's request. List them as 'Goal:' and 'Sub-goals:'.
+2. Then, respond with a step-by-step plan (chain of thought) for how you will achieve these goals. Do not execute any tools yet. Begin your response with 'Plan:' and enumerate the steps.
+`;
