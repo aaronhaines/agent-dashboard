@@ -43,6 +43,9 @@ export class Agent {
   }
 
   public async run(userPrompt: string, contextSnapshot: any): Promise<string> {
+    let scratchpad = "";
+    let agentFinished = false;
+
     const messages: OpenAI.ChatCompletionMessageParam[] = [
       {
         role: "system",
@@ -72,6 +75,9 @@ export class Agent {
       const choice = response.choices[0];
 
       if (choice.finish_reason === "tool_calls" && choice.message.tool_calls) {
+        // Add assistant message to history
+        messages.push(choice.message);
+
         const toolCallPromises = choice.message.tool_calls.map(
           async (toolCall) => {
             const { name, arguments: argsString } = toolCall.function;

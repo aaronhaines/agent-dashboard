@@ -16,8 +16,8 @@ export const Tools = {
       },
     },
     async (module: { moduleType: string; config: any }) => {
-      console.log(module.moduleType);
       useDashboardStore.getState().addModule(module.moduleType, module.config);
+      return `Added module ${module.moduleType} with config ${module.config}`;
     }
   ),
   removeModule: defineTool<{ moduleId: string }>(
@@ -34,6 +34,7 @@ export const Tools = {
     },
     async ({ moduleId }: { moduleId: string }) => {
       useDashboardStore.getState().removeModule(moduleId);
+      return `Removed module ${moduleId} `;
     }
   ),
   updateModuleConfig: defineTool<{ moduleId: string; newConfig: object }>(
@@ -51,6 +52,7 @@ export const Tools = {
     },
     async ({ moduleId, newConfig }: { moduleId: string; newConfig: any }) => {
       useDashboardStore.getState().updateModuleConfig(moduleId, newConfig);
+      return `Updated module ${moduleId} with new config ${newConfig}`;
     }
   ),
 };
