@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useDashboardStore } from "./dashboardStore";
 import { Dashboard } from "./Dashboard";
 import { Agent } from "./Agent";
@@ -38,6 +38,13 @@ export default function App() {
     { role: "user" | "agent"; content: string }[]
   >([]);
   const [loading, setLoading] = useState(false);
+  const chatEndRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [chat, loading]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -119,6 +126,7 @@ export default function App() {
                 </div>
               </div>
             )}
+            <div ref={chatEndRef} />
           </div>
           <form onSubmit={handleSubmit} className="flex gap-2 mt-auto">
             <input
