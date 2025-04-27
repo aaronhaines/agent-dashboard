@@ -57,6 +57,30 @@ export class Agent {
       },
     ];
 
+    // Step 1: Ask the agent to generate a plan (chain of thought)
+    messages[0].content = `${
+      this.systemPrompt
+    }\n\nYou must first respond with a step-by-step plan (chain of thought) for how you will answer the user's request. Do not execute any tools yet. Begin your response with 'Plan:' and enumerate the steps.\n\nConversation history scratchpad::\n${JSON.stringify(
+      scratchpad,
+      null,
+      2
+    )}`;
+
+    // Get the plan from the agent
+    const planResponse = await this.openai.chat.completions.create({
+      model: this.model,
+      messages,
+      tools: this.tools,
+      tool_choice: "none", // Only want a plan, not tool calls yet
+      temperature: 0,
+    });
+
+    const planMessage = planResponse.choices[0].message.content || "";
+    scratchpad += `\nAgent plan:\n${planMessage}\n`;
+    messages.push({ role: "assistant", content: planMessage });
+    console.log(planMessage);
+
+    // Step 2: Execute the plan (allow tool calls)
     while (true) {
       // Always get the latest dashboard state
       const latestSnapshot = useDashboardStore
@@ -66,7 +90,6 @@ export class Agent {
           moduleType,
           config,
         }));
-
       scratchpad += `\nDashboard state::\n${JSON.stringify(
         latestSnapshot,
         null,
@@ -144,6 +167,11 @@ export class Agent {
       if (choice.finish_reason === "stop") {
         scratchpad += `\nAssistant: ${choice.message.content}\n`;
         console.log(scratchpad);
+        // Add the final summary to the conversation
+        messages.push({
+          role: "assistant",
+          content: choice.message.content || "",
+        });
         return choice.message.content || "";
       }
 
