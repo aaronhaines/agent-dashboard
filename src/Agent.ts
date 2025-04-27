@@ -43,18 +43,12 @@ export class Agent {
   }
 
   public async run(userPrompt: string, contextSnapshot: any): Promise<string> {
-    let scratchpad = "";
+    let scratchpad = `User: ${userPrompt}\n`;
 
     const messages: OpenAI.ChatCompletionMessageParam[] = [
       {
         role: "system",
-        content: `${
-          this.systemPrompt
-        }\n\nCurrent dashboard state::\n${JSON.stringify(
-          contextSnapshot,
-          null,
-          2
-        )}`,
+        content: "",
       },
       {
         role: "user",
@@ -63,6 +57,19 @@ export class Agent {
     ];
 
     while (true) {
+      // Include conversation history
+      messages[0].content = `${
+        this.systemPrompt
+      }\n\nCurrent dashboard state::\n${JSON.stringify(
+        contextSnapshot,
+        null,
+        2
+      )}\n\nCurrent history scratchpad::\n${JSON.stringify(
+        scratchpad,
+        null,
+        2
+      )}`;
+
       const response = await this.openai.chat.completions.create({
         model: this.model,
         messages,
@@ -97,8 +104,6 @@ export class Agent {
               scratchpad += `\nTool ${name} called with args ${JSON.stringify(
                 args
               )}.\nResult: ${JSON.stringify(toolResult)}\n`;
-              console.log(scratchpad);
-
               return {
                 role: "tool",
                 tool_call_id: toolCall.id,
@@ -126,6 +131,8 @@ export class Agent {
       }
 
       if (choice.finish_reason === "stop") {
+        scratchpad += `\nAssistant: ${choice.message.content}\n`;
+        console.log(scratchpad);
         return choice.message.content || "";
       }
 
