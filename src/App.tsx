@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from "react";
-import { useDashboardStore } from "./dashboardStore";
 import { Dashboard } from "./Dashboard";
 import { Agent } from "./Agent";
 import { Tools } from "./tools";
@@ -50,7 +49,7 @@ export default function App() {
 
     try {
       // Pass chat history (excluding the current user prompt) to the agent
-      const history = chat;
+      const history = chat.slice(-20);
       const agentResponse = await dashboardAgent.run(userPrompt, history);
       setChat((prev) => [...prev, { role: "agent", content: agentResponse }]);
     } catch {
