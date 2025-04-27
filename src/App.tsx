@@ -3,6 +3,7 @@ import { useDashboardStore } from "./dashboardStore";
 import { Dashboard } from "./Dashboard";
 import { Agent } from "./Agent";
 import { Tools } from "./tools";
+import type { ToolFunction } from "./Agent";
 import { systemPrompt } from "./systemPrompt";
 
 const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
@@ -17,7 +18,7 @@ const toolList = Object.values(Tools).map((tool) => ({
 
 const toolFunctions = Object.fromEntries(
   Object.entries(Tools).map(([name, tool]) => [name, tool.handler])
-);
+) as Record<string, ToolFunction>;
 
 const dashboardAgent = new Agent({
   apiKey: apiKey,
@@ -47,16 +48,10 @@ export default function App() {
     setChat((prev) => [...prev, { role: "user", content: userPrompt }]);
     setLoading(true);
 
-    const snapshot = useDashboardStore
-      .getState()
-      .modules.map(({ id, moduleType, config }) => ({
-        id,
-        moduleType,
-        config,
-      }));
-
     try {
-      const agentResponse = await dashboardAgent.run(userPrompt, snapshot);
+      // Pass chat history (excluding the current user prompt) to the agent
+      const history = chat;
+      const agentResponse = await dashboardAgent.run(userPrompt, history);
       setChat((prev) => [...prev, { role: "agent", content: agentResponse }]);
     } catch {
       setChat((prev) => [

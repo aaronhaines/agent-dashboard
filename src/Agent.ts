@@ -1,7 +1,7 @@
 import { OpenAI } from "openai";
 import { useDashboardStore } from "./dashboardStore";
 
-type ToolFunction = (args: unknown) => Promise<unknown>;
+export type ToolFunction = (args: unknown) => Promise<unknown>;
 
 interface AgentOptions {
   model?: string;
@@ -43,14 +43,26 @@ export class Agent {
     return Promise.race([promise, timeout]);
   }
 
-  public async run(userPrompt: string): Promise<string> {
+  public async run(
+    userPrompt: string,
+    history: { role: "user" | "agent"; content: string }[]
+  ): Promise<string> {
     let scratchpad = `User: ${userPrompt}\n`;
+
+    // Convert app chat history to OpenAI message format
+    const historyMessages: OpenAI.ChatCompletionMessageParam[] = history.map(
+      (msg) => ({
+        role: msg.role === "user" ? "user" : "assistant",
+        content: msg.content,
+      })
+    );
 
     const messages: OpenAI.ChatCompletionMessageParam[] = [
       {
         role: "system",
         content: "",
       },
+      ...historyMessages,
       {
         role: "user",
         content: userPrompt,
