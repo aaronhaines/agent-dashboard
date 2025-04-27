@@ -5,32 +5,53 @@ interface Props {
   module: ModuleInstance;
 }
 
-const PortfolioSummary = (data) => (
-  // Container for the portfolio summary widget
+interface PortfolioSummaryData {
+  totalValue?: string;
+  dailyChange?: string;
+  timestamp?: string;
+}
+
+// Styled Portfolio Summary Widget (dynamic)
+const PortfolioSummary = (data: PortfolioSummaryData) => (
   <div className="bg-gray-800 p-4 rounded-lg shadow-md h-full flex flex-col justify-between">
     <div>
-      {/* Widget Title */}
       <h2 className="text-lg font-semibold text-gray-300 mb-2">
         Portfolio Overview
       </h2>
-      {/* Total Portfolio Value */}
-      <p className="text-3xl font-bold text-white">$5,250,430.80</p>
-      {/* Daily Change */}
-      <p className="text-sm text-green-400 mt-1">+1.25% (+ $64,820.15) Today</p>
+      <p className="text-3xl font-bold text-white">
+        {data?.totalValue ? `$${data.totalValue}` : "$5,250,430.80"}
+      </p>
+      <p className="text-sm text-green-400 mt-1">
+        {data?.dailyChange ? data.dailyChange : "+1.25% (+ $64,820.15) Today"}
+      </p>
     </div>
-    {/* Timestamp */}
     <div className="mt-4">
-      <p className="text-sm text-gray-400">As of: 27 Apr 2025, 1:30 PM BST</p>
+      <p className="text-sm text-gray-400">
+        {data?.timestamp
+          ? `As of: ${data.timestamp}`
+          : "As of: 27 Apr 2025, 1:30 PM BST"}
+      </p>
     </div>
   </div>
 );
+
+interface ExpenseItem {
+  category: string;
+  amount: number;
+}
 
 async function fakeLoadData(module: ModuleInstance) {
   return new Promise((resolve) => {
     setTimeout(() => {
       switch (module.moduleType) {
         case "portfolioChart":
-          resolve({ returns: [1, 2, 3], config: module.config });
+          resolve({
+            totalValue: "5,250,430.80",
+            dailyChange: "+1.25% (+ $64,820.15) Today",
+            timestamp: "27 Apr 2025, 1:30 PM BST",
+            returns: [1, 2, 3],
+            config: module.config,
+          });
           break;
         case "expensesTable":
           resolve({
@@ -61,18 +82,23 @@ export function ModuleCard({ module }: Props) {
   }, [module.config]);
 
   if (module.status === "loading") {
-    return <div style={cardStyle}>Loading {module.moduleType}...</div>;
+    return (
+      <div className="bg-gray-800 p-4 rounded-lg shadow-md h-full flex items-center justify-center min-h-[120px]">
+        Loading {module.moduleType}...
+      </div>
+    );
   }
 
   return (
-    <div style={cardStyle}>
-      <div>{renderModuleContent(module)}</div>
+    <div className="bg-gray-800 p-4 rounded-lg shadow-md h-full flex flex-col justify-between min-h-[200px] relative">
       <button
-        className="text-sm font-bold text-white"
+        className="absolute top-2 right-2 text-gray-400 hover:text-red-500 text-lg font-bold focus:outline-none"
+        aria-label="Remove"
         onClick={() => removeModule(module.id)}
       >
-        Remove
+        ×
       </button>
+      <div>{renderModuleContent(module)}</div>
     </div>
   );
 }
@@ -80,36 +106,47 @@ export function ModuleCard({ module }: Props) {
 function renderModuleContent(module: ModuleInstance) {
   switch (module.moduleType) {
     case "portfolioChart":
-      //return <pre>{JSON.stringify(module.data, null, 2)}</pre>;
-      return PortfolioSummary(module.data);
+      return PortfolioSummary(module.data as PortfolioSummaryData);
     case "expensesTable":
       return (
-        <table>
-          <thead>
-            <tr>
-              <th>Category</th>
-              <th>Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            {module.data?.items?.map((item: any, idx: number) => (
-              <tr key={idx}>
-                <td>{item.category}</td>
-                <td>${item.amount}</td>
+        <div>
+          <h2 className="text-lg font-semibold text-gray-300 mb-2">Expenses</h2>
+          <table className="min-w-full text-sm text-gray-300">
+            <thead>
+              <tr>
+                <th className="text-left py-1">Category</th>
+                <th className="text-left py-1">Amount</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {(module.data?.items as ExpenseItem[] | undefined)?.map(
+                (item, idx) => (
+                  <tr key={idx} className="border-t border-gray-700">
+                    <td className="py-1">{item.category}</td>
+                    <td className="py-1">${item.amount}</td>
+                  </tr>
+                )
+              )}
+            </tbody>
+          </table>
+        </div>
       );
     case "netWorthSummary":
       return (
         <div>
-          <strong>Net Worth:</strong> ${module.data?.netWorth}
+          <h2 className="text-lg font-semibold text-gray-300 mb-2">
+            Net Worth
+          </h2>
+          <div className="text-2xl font-bold text-white mb-1">
+            ${module.data?.netWorth}
+          </div>
         </div>
       );
     default:
-      return <pre>{JSON.stringify(module.data, null, 2)}</pre>;
+      return (
+        <pre className="text-xs text-gray-400">
+          {JSON.stringify(module.data, null, 2)}
+        </pre>
+      );
   }
 }
-
-const cardStyle = { padding: 20, border: "1px solid gray", width: 300 };

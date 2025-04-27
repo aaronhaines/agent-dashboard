@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { useDashboardStore } from "./dashboardStore";
 import { Dashboard } from "./Dashboard";
-import { processAgentFunctionCall } from "./agentFunctions";
-import { mockAgentCall } from "./mockAgent";
 import { realAgentCall } from "./openaiAgent";
 
 export default function App() {
@@ -31,14 +29,19 @@ export default function App() {
         <h1 className="text-2xl font-semibold text-white">
           Wealth Management Dashboard
         </h1>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="flex items-center mt-4 gap-2">
           <input
             value={userPrompt}
             onChange={(e) => setUserPrompt(e.target.value)}
             placeholder="Ask the agent..."
-            style={{ width: 400, padding: 8, marginRight: 8 }}
+            className="w-80 px-3 py-2 rounded bg-gray-800 text-gray-100 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          <button type="submit">Submit</button>
+          <button
+            type="submit"
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded shadow focus:outline-none focus:ring-2 focus:ring-blue-400"
+          >
+            Submit
+          </button>
         </form>
       </header>
 
