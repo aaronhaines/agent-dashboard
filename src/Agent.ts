@@ -1,6 +1,7 @@
 import { OpenAI } from "openai";
+import { useDashboardStore } from "./dashboardStore";
 
-type ToolFunction = (args: any) => Promise<any>;
+type ToolFunction = (args: unknown) => Promise<unknown>;
 
 interface AgentOptions {
   model?: string;
@@ -42,7 +43,7 @@ export class Agent {
     return Promise.race([promise, timeout]);
   }
 
-  public async run(userPrompt: string, contextSnapshot: any): Promise<string> {
+  public async run(userPrompt: string): Promise<string> {
     let scratchpad = `User: ${userPrompt}\n`;
 
     const messages: OpenAI.ChatCompletionMessageParam[] = [
@@ -57,14 +58,24 @@ export class Agent {
     ];
 
     while (true) {
-      // Include conversation history
-      messages[0].content = `${
-        this.systemPrompt
-      }\n\nCurrent dashboard state::\n${JSON.stringify(
-        contextSnapshot,
+      // Always get the latest dashboard state
+      const latestSnapshot = useDashboardStore
+        .getState()
+        .modules.map(({ id, moduleType, config }) => ({
+          id,
+          moduleType,
+          config,
+        }));
+
+      scratchpad += `\nDashboard state::\n${JSON.stringify(
+        latestSnapshot,
         null,
         2
-      )}\n\nCurrent history scratchpad::\n${JSON.stringify(
+      )}\n`;
+
+      messages[0].content = `${
+        this.systemPrompt
+      }\n\nConversation history scratchpad::\n${JSON.stringify(
         scratchpad,
         null,
         2
@@ -108,7 +119,7 @@ export class Agent {
                 role: "tool",
                 tool_call_id: toolCall.id,
                 content: JSON.stringify(toolResult),
-              };
+              } as OpenAI.ChatCompletionMessageParam;
             } catch (error) {
               console.error(`Error calling tool ${name}:`, error);
 
@@ -118,13 +129,13 @@ export class Agent {
                 content: JSON.stringify({
                   error: (error as Error).message || "Unknown error",
                 }),
-              };
+              } as OpenAI.ChatCompletionMessageParam;
             }
           }
         );
 
         const toolMessages = (await Promise.all(toolCallPromises)).filter(
-          Boolean
+          (msg): msg is OpenAI.ChatCompletionMessageParam => msg !== null
         );
         messages.push(...toolMessages);
         continue;
