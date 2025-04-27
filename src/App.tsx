@@ -34,9 +34,16 @@ const dashboardAgent = new Agent({
 
 export default function App() {
   const [userPrompt, setUserPrompt] = useState("");
+  const [chat, setChat] = useState<
+    { role: "user" | "agent"; content: string }[]
+  >([]);
+  const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!userPrompt.trim()) return;
+    setChat((prev) => [...prev, { role: "user", content: userPrompt }]);
+    setLoading(true);
 
     const snapshot = useDashboardStore
       .getState()
@@ -46,10 +53,21 @@ export default function App() {
         config,
       }));
 
-    const agentResponse = await dashboardAgent.run(userPrompt, snapshot);
-    console.log("Agent final message:", agentResponse);
-
-    setUserPrompt("");
+    try {
+      const agentResponse = await dashboardAgent.run(userPrompt, snapshot);
+      setChat((prev) => [...prev, { role: "agent", content: agentResponse }]);
+    } catch {
+      setChat((prev) => [
+        ...prev,
+        {
+          role: "agent",
+          content: "[Error: Failed to get response from agent]",
+        },
+      ]);
+    } finally {
+      setLoading(false);
+      setUserPrompt("");
+    }
   }
 
   return (
@@ -58,24 +76,67 @@ export default function App() {
         <h1 className="text-2xl font-semibold text-white">
           Wealth Management Dashboard
         </h1>
-        <form onSubmit={handleSubmit} className="flex items-center mt-4 gap-2">
-          <input
-            value={userPrompt}
-            onChange={(e) => setUserPrompt(e.target.value)}
-            placeholder="Ask the agent..."
-            className="w-80 px-3 py-2 rounded bg-gray-800 text-gray-100 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <button
-            type="submit"
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded shadow focus:outline-none focus:ring-2 focus:ring-blue-400"
-          >
-            Submit
-          </button>
-        </form>
       </header>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <Dashboard />
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* Dashboard on the left */}
+        <div className="flex-1 min-w-0">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+            <Dashboard />
+          </div>
+        </div>
+        {/* Chat panel on the right */}
+        <div className="w-full lg:w-[400px] xl:w-[450px] flex flex-col bg-gray-800 rounded-lg shadow-lg p-4 h-[70vh] max-h-[80vh]">
+          <h2 className="text-lg font-semibold mb-2 text-blue-300">
+            Agent Chat
+          </h2>
+          <div className="flex-1 overflow-y-auto mb-2 space-y-3 pr-1">
+            {chat.length === 0 && (
+              <div className="text-gray-400 text-sm">
+                No conversation yet. Ask the agent something!
+              </div>
+            )}
+            {chat.map((msg, idx) => (
+              <div
+                key={idx}
+                className={msg.role === "user" ? "text-right" : "text-left"}
+              >
+                <div
+                  className={
+                    "inline-block px-3 py-2 rounded-lg " +
+                    (msg.role === "user"
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-700 text-gray-100")
+                  }
+                >
+                  {msg.content}
+                </div>
+              </div>
+            ))}
+            {loading && (
+              <div className="text-left">
+                <div className="inline-block px-3 py-2 rounded-lg bg-gray-700 text-gray-400 animate-pulse">
+                  Agent is typing...
+                </div>
+              </div>
+            )}
+          </div>
+          <form onSubmit={handleSubmit} className="flex gap-2 mt-auto">
+            <input
+              value={userPrompt}
+              onChange={(e) => setUserPrompt(e.target.value)}
+              placeholder="Ask the agent..."
+              className="flex-1 px-3 py-2 rounded bg-gray-900 text-gray-100 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              disabled={loading}
+            />
+            <button
+              type="submit"
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded shadow focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50"
+              disabled={loading}
+            >
+              Send
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );
