@@ -26,22 +26,25 @@ export default function App() {
   }
 
   return (
-    <div style={{ padding: 20 }}>
-      <h1>Financial Dashboard Playground</h1>
+    <div className="min-h-screen bg-gray-900 text-gray-100 p-4 font-sans">
+      <header className="mb-6">
+        <h1 className="text-2xl font-semibold text-white">
+          Wealth Management Dashboard
+        </h1>
+        <form onSubmit={handleSubmit}>
+          <input
+            value={userPrompt}
+            onChange={(e) => setUserPrompt(e.target.value)}
+            placeholder="Ask the agent..."
+            style={{ width: 400, padding: 8, marginRight: 8 }}
+          />
+          <button type="submit">Submit</button>
+        </form>
+      </header>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          value={userPrompt}
-          onChange={(e) => setUserPrompt(e.target.value)}
-          placeholder="Ask the agent..."
-          style={{ width: 400, padding: 8, marginRight: 8 }}
-        />
-        <button type="submit">Submit</button>
-      </form>
-
-      <hr />
-
-      <Dashboard />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <Dashboard />
+      </div>
     </div>
   );
 }

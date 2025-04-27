@@ -5,6 +5,26 @@ interface Props {
   module: ModuleInstance;
 }
 
+const PortfolioSummary = (data) => (
+  // Container for the portfolio summary widget
+  <div className="bg-gray-800 p-4 rounded-lg shadow-md h-full flex flex-col justify-between">
+    <div>
+      {/* Widget Title */}
+      <h2 className="text-lg font-semibold text-gray-300 mb-2">
+        Portfolio Overview
+      </h2>
+      {/* Total Portfolio Value */}
+      <p className="text-3xl font-bold text-white">$5,250,430.80</p>
+      {/* Daily Change */}
+      <p className="text-sm text-green-400 mt-1">+1.25% (+ $64,820.15) Today</p>
+    </div>
+    {/* Timestamp */}
+    <div className="mt-4">
+      <p className="text-sm text-gray-400">As of: 27 Apr 2025, 1:30 PM BST</p>
+    </div>
+  </div>
+);
+
 async function fakeLoadData(module: ModuleInstance) {
   return new Promise((resolve) => {
     setTimeout(() => {
@@ -46,31 +66,22 @@ export function ModuleCard({ module }: Props) {
 
   return (
     <div style={cardStyle}>
-      <h3>{renderTitle(module)}</h3>
       <div>{renderModuleContent(module)}</div>
-      <button onClick={() => removeModule(module.id)}>Remove</button>
+      <button
+        className="text-sm font-bold text-white"
+        onClick={() => removeModule(module.id)}
+      >
+        Remove
+      </button>
     </div>
   );
-}
-
-function renderTitle(module: ModuleInstance) {
-  console.log(module);
-  switch (module.moduleType) {
-    case "portfolioChart":
-      return "Portfolio Performance";
-    case "expensesTable":
-      return "Expenses Table";
-    case "netWorthSummary":
-      return "Net Worth Summary";
-    default:
-      return "Unknown Module";
-  }
 }
 
 function renderModuleContent(module: ModuleInstance) {
   switch (module.moduleType) {
     case "portfolioChart":
-      return <pre>{JSON.stringify(module.data, null, 2)}</pre>;
+      //return <pre>{JSON.stringify(module.data, null, 2)}</pre>;
+      return PortfolioSummary(module.data);
     case "expensesTable":
       return (
         <table>
