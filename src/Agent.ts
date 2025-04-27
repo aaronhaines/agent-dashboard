@@ -44,7 +44,6 @@ export class Agent {
 
   public async run(userPrompt: string, contextSnapshot: any): Promise<string> {
     let scratchpad = "";
-    let agentFinished = false;
 
     const messages: OpenAI.ChatCompletionMessageParam[] = [
       {
@@ -94,6 +93,11 @@ export class Agent {
                 toolFn(args),
                 this.toolTimeoutMs
               );
+
+              scratchpad += `\nTool ${name} called with args ${JSON.stringify(
+                args
+              )}.\nResult: ${JSON.stringify(toolResult)}\n`;
+              console.log(scratchpad);
 
               return {
                 role: "tool",

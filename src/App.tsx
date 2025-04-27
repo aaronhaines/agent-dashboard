@@ -3,6 +3,7 @@ import { useDashboardStore } from "./dashboardStore";
 import { Dashboard } from "./Dashboard";
 import { Agent } from "./Agent";
 import { Tools } from "./tools";
+import { systemPrompt } from "./systemPrompt";
 
 const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
 if (!apiKey) {
@@ -20,13 +21,7 @@ const toolFunctions = Object.fromEntries(
 
 const dashboardAgent = new Agent({
   apiKey: apiKey,
-  systemPrompt: `You are an intelligent financial dashboard assistant. 
-  The dashboard consists of modules (charts, tables, summaries). 
-  You can add, remove, or update modules based on the user's input.
-
-  Available module types are: portfolioChart, expensesTable, netWorthSummary
-
-  If a tool response contains {error: "timeout"}, you may attempt to retry once.`,
+  systemPrompt,
   tools: toolList,
   toolFunctions: toolFunctions,
   toolTimeoutMs: 5000,
