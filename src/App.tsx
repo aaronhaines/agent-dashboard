@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useDashboardStore } from "./dashboardStore";
 import { Dashboard } from "./Dashboard";
-import { AgentRunner } from "./AgentRunner";
+import { Agent } from "./Agent";
 import { Tools } from "./tools";
 
 const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
@@ -18,7 +18,7 @@ const toolFunctions = Object.fromEntries(
   Object.entries(Tools).map(([name, tool]) => [name, tool.handler])
 );
 
-const dashboardAgent = new AgentRunner({
+const dashboardAgent = new Agent({
   apiKey: apiKey,
   systemPrompt: `You are an intelligent financial dashboard assistant. 
   The dashboard consists of modules (charts, tables, summaries). 

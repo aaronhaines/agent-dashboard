@@ -2,7 +2,7 @@ import { OpenAI } from "openai";
 
 type ToolFunction = (args: any) => Promise<any>;
 
-interface AgentRunnerOptions {
+interface AgentOptions {
   model?: string;
   systemPrompt: string;
   tools: OpenAI.ChatCompletionTool[];
@@ -11,7 +11,7 @@ interface AgentRunnerOptions {
   toolTimeoutMs?: number;
 }
 
-export class AgentRunner {
+export class Agent {
   private openai: OpenAI;
   private model: string;
   private systemPrompt: string;
@@ -19,7 +19,7 @@ export class AgentRunner {
   private toolFunctions: Record<string, ToolFunction>;
   private toolTimeoutMs: number;
 
-  constructor(options: AgentRunnerOptions) {
+  constructor(options: AgentOptions) {
     this.openai = new OpenAI({
       apiKey: options.apiKey,
       dangerouslyAllowBrowser: true,
