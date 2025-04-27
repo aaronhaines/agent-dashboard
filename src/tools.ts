@@ -2,7 +2,7 @@ import { useDashboardStore } from "./dashboardStore";
 import { defineTool } from "./ToolUtils";
 
 export const Tools = {
-  addModule: defineTool(
+  addModule: defineTool<{ moduleType: string; config: object }>(
     {
       name: "addModule",
       description: "Add a new dashboard module",
@@ -20,7 +20,7 @@ export const Tools = {
       useDashboardStore.getState().addModule(module.moduleType, module.config);
     }
   ),
-  removeModule: defineTool(
+  removeModule: defineTool<{ moduleId: string }>(
     {
       name: "removeModule",
       description: "Remove a module by ID",
@@ -36,7 +36,7 @@ export const Tools = {
       useDashboardStore.getState().removeModule(moduleId);
     }
   ),
-  updateModuleConfig: defineTool(
+  updateModuleConfig: defineTool<{ moduleId: string; newConfig: object }>(
     {
       name: "updateModuleConfig",
       description: "Update the configuration of an existing module",
