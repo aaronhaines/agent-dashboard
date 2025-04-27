@@ -78,21 +78,21 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-100 p-4 font-sans">
+    <div className="min-h-screen h-screen bg-gray-900 text-gray-100 p-4 font-sans">
       <header className="mb-6">
         <h1 className="text-2xl font-semibold text-white">
           Wealth Management Dashboard
         </h1>
       </header>
-      <div className="flex flex-col lg:flex-row gap-6">
+      <div className="flex flex-row gap-6 h-[calc(100vh-5.5rem)]">
+        {" "}
+        {/* 5.5rem = header + padding */}
         {/* Dashboard on the left */}
-        <div className="flex-1 min-w-0">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
-            <Dashboard />
-          </div>
+        <div className="flex-1 min-w-0 h-full overflow-auto">
+          <Dashboard />
         </div>
         {/* Chat panel on the right */}
-        <div className="w-full lg:w-[400px] xl:w-[450px] flex flex-col bg-gray-800 rounded-lg shadow-lg p-4 h-[70vh] max-h-[80vh]">
+        <div className="w-full max-w-[400px] xl:max-w-[450px] flex flex-col bg-gray-800 rounded-lg shadow-lg p-4 h-full">
           <h2 className="text-lg font-semibold mb-2 text-blue-300">
             Agent Chat
           </h2>

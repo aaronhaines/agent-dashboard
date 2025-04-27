@@ -9,7 +9,14 @@ export function Dashboard() {
   }
 
   return (
-    <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
+    <div
+      className="w-full h-full grid gap-4"
+      style={{
+        gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+        alignContent: "start",
+        height: "100%",
+      }}
+    >
       {modules.map((mod) => (
         <ModuleCard key={mod.id} module={mod} />
       ))}
