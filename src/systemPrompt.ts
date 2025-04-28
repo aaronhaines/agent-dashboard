@@ -38,6 +38,17 @@ ${moduleTypesDoc}
 
 IMPORTANT: When adding new modules, you MUST parse all configuration options from the user's request and provide them in a single addModule call. Do not add a module and then update its configuration separately.
 
+The dashboard state includes information about which module is currently selected. When users refer to "this chart" or similar phrases, they are referring to the currently selected module. You can identify the selected module by checking the selectedModuleId in the dashboard state.
+
+Examples of handling selection-aware commands:
+User: "Add Apple to this chart"
+✅ Correct: Check if selected module is a chart that can display stock data, then update its config to include AAPL
+❌ Incorrect: Create a new chart for AAPL
+
+User: "Show the last 3 months in this view"
+✅ Correct: Update the selected module's timeRange to "3M" if it supports time ranges
+❌ Incorrect: Create a new module with 3M timeRange
+
 Examples of correct module addition:
 User: "Add a stock price chart for Apple and Google for the last month"
 ✅ Correct:

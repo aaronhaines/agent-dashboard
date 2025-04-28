@@ -10,14 +10,17 @@ export interface ModuleInstance {
 
 interface DashboardState {
   modules: ModuleInstance[];
+  selectedModuleId: string | null;
   addModule: (moduleType: string, config: Record<string, any>) => void;
   removeModule: (id: string) => void;
   updateModuleConfig: (id: string, newConfig: Record<string, any>) => void;
   setModuleData: (id: string, data: any) => void;
+  selectModule: (id: string | null) => void;
 }
 
 export const useDashboardStore = create<DashboardState>((set) => ({
   modules: [],
+  selectedModuleId: null,
   addModule: (moduleType, config) =>
     set((state) => ({
       modules: [
@@ -28,6 +31,8 @@ export const useDashboardStore = create<DashboardState>((set) => ({
   removeModule: (id) =>
     set((state) => ({
       modules: state.modules.filter((m) => m.id !== id),
+      selectedModuleId:
+        state.selectedModuleId === id ? null : state.selectedModuleId,
     })),
   updateModuleConfig: (id, newConfig) =>
     set((state) => ({
@@ -40,6 +45,10 @@ export const useDashboardStore = create<DashboardState>((set) => ({
       modules: state.modules.map((m) =>
         m.id === id ? { ...m, data, status: "ready" } : m
       ),
+    })),
+  selectModule: (id) =>
+    set(() => ({
+      selectedModuleId: id,
     })),
 }));
 

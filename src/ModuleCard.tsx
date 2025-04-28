@@ -7,6 +7,9 @@ interface Props {
 
 export function ModuleCard({ module }: Props) {
   const removeModule = useDashboardStore((state) => state.removeModule);
+  const selectModule = useDashboardStore((state) => state.selectModule);
+  const selectedModuleId = useDashboardStore((state) => state.selectedModuleId);
+  const isSelected = selectedModuleId === module.id;
 
   const VisualizationComponent =
     visualizationComponents[
@@ -21,12 +24,20 @@ export function ModuleCard({ module }: Props) {
   }
 
   return (
-    <div className="bg-gray-800 rounded-lg shadow-md flex flex-col min-h-[240px]">
+    <div
+      className={`bg-gray-800 rounded-lg shadow-md flex flex-col min-h-[240px] cursor-pointer transition-all duration-200 ${
+        isSelected ? "ring-2 ring-blue-500" : ""
+      }`}
+      onClick={() => selectModule(isSelected ? null : module.id)}
+    >
       <div className="flex-none p-2 flex justify-end">
         <button
           className="w-6 h-6 flex items-center justify-center rounded-md bg-gray-700 text-gray-400 hover:bg-red-500 hover:text-white transition-colors duration-200 text-sm"
           aria-label="Remove module"
-          onClick={() => removeModule(module.id)}
+          onClick={(e) => {
+            e.stopPropagation();
+            removeModule(module.id);
+          }}
         >
           ×
         </button>

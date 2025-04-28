@@ -119,13 +119,16 @@ ${JSON.stringify(scratchpad, null, 2)}`;
       scratchpad = await this.summarizeScratchpad(scratchpad);
 
       // Always get the latest dashboard state
-      const latestSnapshot = useDashboardStore
-        .getState()
-        .modules.map(({ id, moduleType, config }) => ({
-          id,
-          moduleType,
-          config,
-        }));
+      const latestSnapshot = {
+        modules: useDashboardStore
+          .getState()
+          .modules.map(({ id, moduleType, config }) => ({
+            id,
+            moduleType,
+            config,
+          })),
+        selectedModuleId: useDashboardStore.getState().selectedModuleId,
+      };
       scratchpad += `\nDashboard state::\n${JSON.stringify(
         latestSnapshot,
         null,
