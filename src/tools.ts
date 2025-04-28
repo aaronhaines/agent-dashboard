@@ -1,8 +1,37 @@
 import { useDashboardStore } from "./dashboardStore";
 import { defineTool } from "./ToolUtils";
+import { visualizationSchemas } from "./visualizations";
+
+// Extract config type from visualization schemas
+type ModuleConfig = {
+  [K in keyof typeof visualizationSchemas]: {
+    type: "object";
+    properties: (typeof visualizationSchemas)[K]["schema"]["properties"];
+  };
+}[keyof typeof visualizationSchemas];
+
+// Type for module configuration values
+type ConfigValue = string | number | boolean | string[];
+
+// Default configs for each module type
+const defaultConfigs: Record<
+  keyof typeof visualizationSchemas,
+  Record<string, ConfigValue>
+> = {
+  portfolioChart: {
+    timeframe: "1M",
+    showReturns: false,
+  },
+  expensesTable: {
+    categories: [],
+  },
+  netWorthSummary: {
+    currency: "USD",
+  },
+};
 
 export const Tools = {
-  addModule: defineTool<{ moduleType: string; config: object }>(
+  addModule: defineTool<{ moduleType: string; config: ModuleConfig }>(
     {
       name: "addModule",
       description: "Add a new dashboard module",
@@ -15,9 +44,18 @@ export const Tools = {
         required: ["moduleType", "config"],
       },
     },
-    async (module: { moduleType: string; config: any }) => {
-      useDashboardStore.getState().addModule(module.moduleType, module.config);
-      return `Added module ${module.moduleType} with config ${module.config}`;
+    async (module: { moduleType: string; config: ModuleConfig }) => {
+      // Merge provided config with default config
+      const defaultConfig =
+        defaultConfigs[
+          module.moduleType as keyof typeof visualizationSchemas
+        ] || {};
+      const finalConfig = { ...defaultConfig, ...module.config };
+
+      useDashboardStore.getState().addModule(module.moduleType, finalConfig);
+      return `Added module ${module.moduleType} with config ${JSON.stringify(
+        finalConfig
+      )}`;
     }
   ),
   removeModule: defineTool<{ moduleId: string }>(
@@ -37,7 +75,7 @@ export const Tools = {
       return `Removed module ${moduleId} `;
     }
   ),
-  updateModuleConfig: defineTool<{ moduleId: string; newConfig: object }>(
+  updateModuleConfig: defineTool<{ moduleId: string; config: ModuleConfig }>(
     {
       name: "updateModuleConfig",
       description: "Update the configuration of an existing module",
@@ -45,14 +83,25 @@ export const Tools = {
         type: "object",
         properties: {
           moduleId: { type: "string" },
-          newConfig: { type: "object" },
+          config: {
+            type: "object",
+            description: "The new configuration to apply",
+          },
         },
-        required: ["moduleId", "newConfig"],
+        required: ["moduleId", "config"],
       },
     },
-    async ({ moduleId, newConfig }: { moduleId: string; newConfig: any }) => {
-      useDashboardStore.getState().updateModuleConfig(moduleId, newConfig);
-      return `Updated module ${moduleId} with new config ${newConfig}`;
+    async ({
+      moduleId,
+      config,
+    }: {
+      moduleId: string;
+      config: ModuleConfig;
+    }) => {
+      useDashboardStore.getState().updateModuleConfig(moduleId, config);
+      return `Updated module ${moduleId} with new config ${JSON.stringify(
+        config
+      )}`;
     }
   ),
 };
