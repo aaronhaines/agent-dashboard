@@ -103,23 +103,21 @@ const MarketMoverRow: React.FC<{ mover: MarketMover; isGainer: boolean }> = ({
   mover,
   isGainer,
 }) => (
-  <div className="flex items-center justify-between py-2 border-b border-gray-700">
-    <div className="flex-1">
-      <p className="text-white font-medium">{mover.symbol}</p>
-      <p className="text-sm text-gray-400">{mover.name}</p>
-    </div>
-    <div className="flex-1 text-right">
-      <p className="text-white">${mover.price}</p>
-      <p className={`text-sm ${isGainer ? "text-green-400" : "text-red-400"}`}>
+  <div className="flex flex-col bg-gray-700 rounded p-2 hover:bg-gray-600 transition-colors">
+    <div className="flex items-center justify-between mb-1">
+      <span className="font-medium text-white">{mover.symbol}</span>
+      <span
+        className={`text-sm ${isGainer ? "text-green-400" : "text-red-400"}`}
+      >
         {isGainer ? "+" : ""}
-        {mover.change} ({mover.changePercent}%)
-      </p>
+        {mover.changePercent}%
+      </span>
     </div>
-    <div className="flex-1 text-right">
-      <p className="text-sm text-gray-400">Vol</p>
-      <p className="text-sm text-white">
-        {parseInt(mover.volume).toLocaleString()}
-      </p>
+    <div className="flex items-center justify-between text-sm">
+      <span className="text-gray-400">${mover.price}</span>
+      <span className={`${isGainer ? "text-green-400" : "text-red-400"}`}>
+        {isGainer ? "+" : ""}${Math.abs(parseFloat(mover.change))}
+      </span>
     </div>
   </div>
 );
@@ -151,26 +149,29 @@ export const MarketMovers: React.FC<Props> = ({ module }) => {
   }
 
   return (
-    <div className="bg-gray-800 p-4 rounded-lg shadow-md h-full flex flex-col">
-      <h2 className="text-lg font-semibold text-gray-300 mb-4">
-        Market Movers
-      </h2>
+    <div className="h-full flex flex-col">
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-lg font-semibold text-gray-300">Market Movers</h2>
+        <span className="text-xs text-gray-400">
+          Vol {(module.config?.minVolume as number)?.toLocaleString()}k+
+        </span>
+      </div>
 
-      <div className="flex-grow grid grid-cols-2 gap-6">
-        {/* Gainers */}
+      <div className="flex-1 grid grid-cols-2 gap-3">
         <div>
-          <h3 className="text-green-400 font-medium mb-3">Top Gainers</h3>
-          <div className="space-y-1">
+          <h3 className="text-sm font-medium text-green-400 mb-2">
+            Top Gainers
+          </h3>
+          <div className="grid gap-2">
             {data?.gainers.map((gainer, index) => (
               <MarketMoverRow key={index} mover={gainer} isGainer={true} />
             ))}
           </div>
         </div>
 
-        {/* Losers */}
         <div>
-          <h3 className="text-red-400 font-medium mb-3">Top Losers</h3>
-          <div className="space-y-1">
+          <h3 className="text-sm font-medium text-red-400 mb-2">Top Losers</h3>
+          <div className="grid gap-2">
             {data?.losers.map((loser, index) => (
               <MarketMoverRow key={index} mover={loser} isGainer={false} />
             ))}
@@ -178,8 +179,8 @@ export const MarketMovers: React.FC<Props> = ({ module }) => {
         </div>
       </div>
 
-      <div className="mt-4 pt-2 border-t border-gray-700">
-        <p className="text-sm text-gray-400">As of: {data?.timestamp}</p>
+      <div className="mt-3 pt-2 border-t border-gray-700">
+        <p className="text-xs text-gray-400">As of: {data?.timestamp}</p>
       </div>
     </div>
   );
