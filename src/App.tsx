@@ -4,6 +4,7 @@ import { Agent } from "./Agent";
 import { Tools } from "./tools";
 import type { ToolFunction } from "./Agent";
 import { systemPrompt } from "./systemPrompt";
+import { useChatStore, type ChatMessage } from "./chatStore";
 
 const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
 if (!apiKey) {
@@ -29,37 +30,36 @@ const dashboardAgent = new Agent({
 
 export default function App() {
   const [userPrompt, setUserPrompt] = useState("");
-  const [chat, setChat] = useState<
-    { role: "user" | "agent"; content: string }[]
-  >([]);
   const [loading, setLoading] = useState(false);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
+
+  const messages = useChatStore((state) => state.messages);
+  const addMessage = useChatStore((state) => state.addMessage);
 
   useEffect(() => {
     if (chatEndRef.current) {
       chatEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [chat, loading]);
+  }, [messages, loading]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!userPrompt.trim()) return;
-    setChat((prev) => [...prev, { role: "user", content: userPrompt }]);
+
+    // Add user message to chat
+    addMessage({ role: "user", content: userPrompt });
     setLoading(true);
 
     try {
-      // Pass chat history (excluding the current user prompt) to the agent
-      const history = chat.slice(-20);
+      // Pass chat history to the agent
+      const history = messages.slice(-20);
       const agentResponse = await dashboardAgent.run(userPrompt, history);
-      setChat((prev) => [...prev, { role: "agent", content: agentResponse }]);
+      addMessage({ role: "agent", content: agentResponse });
     } catch {
-      setChat((prev) => [
-        ...prev,
-        {
-          role: "agent",
-          content: "[Error: Failed to get response from agent]",
-        },
-      ]);
+      addMessage({
+        role: "agent",
+        content: "[Error: Failed to get response from agent]",
+      });
     } finally {
       setLoading(false);
       setUserPrompt("");
@@ -74,24 +74,28 @@ export default function App() {
         </h1>
       </header>
       <div className="flex flex-row gap-6 h-[calc(100vh-5.5rem)]">
-        {" "}
-        {/* 5.5rem = header + padding */}
         {/* Dashboard on the left */}
         <div className="flex-1 min-w-0 h-full overflow-auto">
           <Dashboard />
         </div>
         {/* Chat panel on the right */}
         <div className="w-full max-w-[400px] xl:max-w-[450px] flex flex-col bg-gray-800 rounded-lg shadow-lg p-4 h-full">
-          <h2 className="text-lg font-semibold mb-2 text-blue-300">
-            Agent Chat
-          </h2>
+          <div className="flex justify-between items-center mb-2">
+            <h2 className="text-lg font-semibold text-blue-300">Agent Chat</h2>
+            <button
+              onClick={() => useChatStore.getState().clearHistory()}
+              className="text-sm text-gray-400 hover:text-gray-300 transition-colors"
+            >
+              Clear History
+            </button>
+          </div>
           <div className="flex-1 overflow-y-auto mb-2 space-y-3 pr-1">
-            {chat.length === 0 && (
+            {messages.length === 0 && (
               <div className="text-gray-400 text-sm">
                 No conversation yet. Ask the agent something!
               </div>
             )}
-            {chat.map((msg, idx) => (
+            {messages.map((msg, idx) => (
               <div
                 key={idx}
                 className={msg.role === "user" ? "text-right" : "text-left"}
@@ -117,21 +121,14 @@ export default function App() {
             )}
             <div ref={chatEndRef} />
           </div>
-          <form onSubmit={handleSubmit} className="flex gap-2 mt-auto">
+          <form onSubmit={handleSubmit} className="flex-none">
             <input
+              type="text"
               value={userPrompt}
               onChange={(e) => setUserPrompt(e.target.value)}
-              placeholder="Ask the agent..."
-              className="flex-1 px-3 py-2 rounded bg-gray-900 text-gray-100 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              disabled={loading}
+              placeholder="Ask the agent to help you..."
+              className="w-full px-4 py-2 rounded-lg bg-gray-700 text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded shadow focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50"
-              disabled={loading}
-            >
-              Send
-            </button>
           </form>
         </div>
       </div>

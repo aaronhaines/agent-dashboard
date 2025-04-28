@@ -45,11 +45,11 @@ export class Agent {
 
   // Helper to summarize long scratchpad history
   private async summarizeScratchpad(scratchpad: string): Promise<string> {
-    // Only summarize if over 2000 chars
-    if (scratchpad.length <= 2000) return scratchpad;
-    // Keep the last 1000 chars verbatim
-    const recent = scratchpad.slice(-1000);
-    const toSummarize = scratchpad.slice(0, -1000);
+    // Only summarize if over 5000 chars
+    if (scratchpad.length <= 5000) return scratchpad;
+    // Keep the last 2000 chars verbatim
+    const recent = scratchpad.slice(-2000);
+    const toSummarize = scratchpad.slice(0, -2000);
     const prompt = `Summarize the following agent scratchpad history for context, focusing on key actions, tool calls, and results. Be concise but preserve important details.\n\nHistory:\n${toSummarize}`;
     const response = await this.openai.chat.completions.create({
       model: this.model,
