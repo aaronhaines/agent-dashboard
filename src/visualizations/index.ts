@@ -9,6 +9,7 @@ import {
 } from "./ExpensesTable";
 import { NetWorthSummary, type NetWorthSummaryData } from "./NetWorthSummary";
 import { StockPriceChart, type StockPriceData } from "./StockPriceChart";
+import { MarketMovers, type MarketMoversData } from "./MarketMovers";
 
 // Schema definitions for each visualization type
 export const visualizationSchemas = {
@@ -92,6 +93,28 @@ export const visualizationSchemas = {
       },
     },
   },
+  marketMovers: {
+    name: "marketMovers",
+    description: "Displays biggest market gainers and losers",
+    component: MarketMovers,
+    schema: {
+      type: "object",
+      properties: {
+        numMovers: {
+          type: "number",
+          minimum: 1,
+          maximum: 10,
+          default: 5,
+          description: "Number of top gainers/losers to display",
+        },
+        minVolume: {
+          type: "number",
+          description: "Minimum trading volume to include (in thousands)",
+          default: 100,
+        },
+      },
+    },
+  },
 } as const;
 
 // Map of module types to their React components (for backward compatibility)
@@ -100,6 +123,7 @@ export const visualizationComponents = {
   expensesTable: ExpensesTable,
   netWorthSummary: NetWorthSummary,
   stockPriceChart: StockPriceChart,
+  marketMovers: MarketMovers,
 } as const;
 
 // Type for all possible module data
@@ -107,7 +131,8 @@ export type ModuleData =
   | PortfolioSummaryData
   | ExpensesTableData
   | NetWorthSummaryData
-  | StockPriceData;
+  | StockPriceData
+  | MarketMoversData;
 
 // Type for all possible module types
 export type ModuleType = keyof typeof visualizationComponents;
@@ -119,4 +144,5 @@ export type {
   ExpenseItem,
   NetWorthSummaryData,
   StockPriceData,
+  MarketMoversData,
 };

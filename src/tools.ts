@@ -42,6 +42,10 @@ const defaultConfigs: Record<
     tickers: ["AAPL"],
     timeRange: "1M",
   },
+  marketMovers: {
+    numMovers: 5,
+    minVolume: 100,
+  },
 };
 
 export const Tools = {
