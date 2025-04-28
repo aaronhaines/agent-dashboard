@@ -46,6 +46,10 @@ const defaultConfigs: Record<
     numMovers: 5,
     minVolume: 100,
   },
+  companyNews: {
+    company: "Apple",
+    timeRange: "1W",
+  },
 };
 
 export const Tools = {

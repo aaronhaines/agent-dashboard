@@ -10,6 +10,7 @@ import {
 import { NetWorthSummary, type NetWorthSummaryData } from "./NetWorthSummary";
 import { StockPriceChart, type StockPriceData } from "./StockPriceChart";
 import { MarketMovers, type MarketMoversData } from "./MarketMovers";
+import { CompanyNews, type CompanyNewsData } from "./CompanyNews";
 
 // Schema definitions for each visualization type
 export const visualizationSchemas = {
@@ -115,6 +116,26 @@ export const visualizationSchemas = {
       },
     },
   },
+  companyNews: {
+    name: "companyNews",
+    description: "Displays news headlines for a specific company",
+    component: CompanyNews,
+    schema: {
+      type: "object",
+      properties: {
+        company: {
+          type: "string",
+          description: "Company name to show news for",
+        },
+        timeRange: {
+          type: "string",
+          enum: ["1D", "1W", "1M", "3M", "1Y"],
+          description: "Time range for news articles",
+        },
+      },
+      required: ["company", "timeRange"],
+    },
+  },
 } as const;
 
 // Map of module types to their React components (for backward compatibility)
@@ -124,6 +145,7 @@ export const visualizationComponents = {
   netWorthSummary: NetWorthSummary,
   stockPriceChart: StockPriceChart,
   marketMovers: MarketMovers,
+  companyNews: CompanyNews,
 } as const;
 
 // Type for all possible module data
@@ -132,7 +154,8 @@ export type ModuleData =
   | ExpensesTableData
   | NetWorthSummaryData
   | StockPriceData
-  | MarketMoversData;
+  | MarketMoversData
+  | CompanyNewsData;
 
 // Type for all possible module types
 export type ModuleType = keyof typeof visualizationComponents;
@@ -145,4 +168,5 @@ export type {
   NetWorthSummaryData,
   StockPriceData,
   MarketMoversData,
+  CompanyNewsData,
 };
