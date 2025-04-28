@@ -13,13 +13,7 @@ export function Dashboard() {
   }
 
   return (
-    <div
-      className="w-full h-full grid gap-4 p-4 auto-rows-min"
-      style={{
-        gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 400px), 1fr))",
-        alignContent: "start",
-      }}
-    >
+    <div className="w-full h-full p-4 flex flex-wrap gap-4 content-start">
       {modules.map((mod) => (
         <ModuleCard key={mod.id} module={mod} />
       ))}

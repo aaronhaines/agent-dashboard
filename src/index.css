@@ -1,1 +1,40 @@
 @import "tailwindcss";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles for react-resizable */
+.react-resizable {
+  position: relative;
+}
+
+.react-resizable-handle {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  bottom: 0;
+  right: 0;
+  background-color: transparent;
+  padding: 0 3px 3px 0;
+  background-repeat: no-repeat;
+  background-origin: content-box;
+  box-sizing: border-box;
+  cursor: se-resize;
+}
+
+.react-resizable-handle::after {
+  content: "";
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  width: 12px;
+  height: 12px;
+  border-right: 2px solid rgba(156, 163, 175, 0.5);
+  border-bottom: 2px solid rgba(156, 163, 175, 0.5);
+  transition: border-color 0.2s;
+}
+
+.react-resizable-handle:hover::after {
+  border-color: rgba(59, 130, 246, 0.5);
+}

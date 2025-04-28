@@ -111,7 +111,7 @@ export default function App() {
             {loading && (
               <div className="text-left">
                 <div className="inline-block px-3 py-2 rounded-lg bg-gray-700 text-gray-400 animate-pulse">
-                  Agent is typing...
+                  Agent is working...
                 </div>
               </div>
             )}
