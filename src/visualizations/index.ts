@@ -28,6 +28,18 @@ export const visualizationSchemas = {
           type: "boolean",
           description: "Whether to show return values",
         },
+        trackedAssets: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              symbol: { type: "string" },
+              name: { type: "string" },
+            },
+            required: ["symbol", "name"],
+          },
+          description: "List of assets to track in the portfolio",
+        },
       },
     },
   },

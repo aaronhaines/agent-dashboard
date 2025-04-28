@@ -11,7 +11,12 @@ type ModuleConfig = {
 }[keyof typeof visualizationSchemas];
 
 // Type for module configuration values
-type ConfigValue = string | number | boolean | string[];
+type ConfigValue =
+  | string
+  | number
+  | boolean
+  | string[]
+  | { symbol: string; name: string }[];
 
 // Default configs for each module type
 const defaultConfigs: Record<
@@ -21,6 +26,11 @@ const defaultConfigs: Record<
   portfolioChart: {
     timeframe: "1M",
     showReturns: false,
+    trackedAssets: [
+      { symbol: "AAPL", name: "Apple Inc." },
+      { symbol: "GOOGL", name: "Alphabet Inc." },
+      { symbol: "MSFT", name: "Microsoft Corp." },
+    ],
   },
   expensesTable: {
     categories: [],
@@ -29,7 +39,7 @@ const defaultConfigs: Record<
     currency: "USD",
   },
   stockPriceChart: {
-    tickers: ["AAPL", "GOOGL", "MSFT"],
+    tickers: ["AAPL"],
     timeRange: "1M",
   },
 };

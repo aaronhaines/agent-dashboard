@@ -21,39 +21,61 @@ export interface PortfolioSummaryData {
 async function loadPortfolioData(
   module: ModuleInstance
 ): Promise<PortfolioSummaryData> {
+  // Get tracked assets from config or use defaults
+  const trackedAssets = (module.config?.trackedAssets as {
+    symbol: string;
+    name: string;
+  }[]) || [
+    { symbol: "AAPL", name: "Apple Inc." },
+    { symbol: "GOOGL", name: "Alphabet Inc." },
+    { symbol: "MSFT", name: "Microsoft Corp." },
+  ];
+
   // Simulate API call
   return new Promise((resolve) => {
     setTimeout(() => {
+      // Generate mock data for each tracked asset
+      const assets = trackedAssets.map((asset) => ({
+        ...asset,
+        value: (Math.random() * 1000000 + 500000).toFixed(2),
+        change: (Math.random() * 20000 - 10000).toFixed(2),
+        changePercent: (Math.random() * 2 - 1).toFixed(2),
+        isPositive: Math.random() > 0.5,
+      }));
+
+      // Calculate total value and daily change
+      const totalValue = assets
+        .reduce((sum, asset) => sum + parseFloat(asset.value), 0)
+        .toFixed(2);
+      const totalChange = assets
+        .reduce((sum, asset) => sum + parseFloat(asset.change), 0)
+        .toFixed(2);
+      const totalChangePercent = (
+        (parseFloat(totalChange) / parseFloat(totalValue)) *
+        100
+      ).toFixed(2);
+      const isPositiveTotal = parseFloat(totalChange) > 0;
+
       resolve({
-        totalValue: "5,250,430.80",
-        dailyChange: "+1.25% (+ $64,820.15) Today",
-        timestamp: "27 Apr 2025, 1:30 PM BST",
-        assets: [
-          {
-            symbol: "AAPL",
-            name: "Apple Inc.",
-            value: "1,250,430.50",
-            change: "15,430.20",
-            changePercent: "1.25",
-            isPositive: true,
-          },
-          {
-            symbol: "GOOGL",
-            name: "Alphabet Inc.",
-            value: "980,250.30",
-            change: "-8,720.40",
-            changePercent: "0.88",
-            isPositive: false,
-          },
-          {
-            symbol: "MSFT",
-            name: "Microsoft Corp.",
-            value: "875,340.60",
-            change: "12,340.80",
-            changePercent: "1.43",
-            isPositive: true,
-          },
-        ],
+        totalValue: totalValue.replace(/\B(?=(\d{3})+(?!\d))/g, ","),
+        dailyChange: `${isPositiveTotal ? "+" : "-"}${Math.abs(
+          parseFloat(totalChangePercent)
+        )}% (${isPositiveTotal ? "+" : "-"} $${Math.abs(
+          parseFloat(totalChange)
+        ).toLocaleString()}) Today`,
+        timestamp: new Date().toLocaleString("en-US", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+          hour: "numeric",
+          minute: "numeric",
+          hour12: true,
+          timeZoneName: "short",
+        }),
+        assets: assets.map((asset) => ({
+          ...asset,
+          value: asset.value.replace(/\B(?=(\d{3})+(?!\d))/g, ","),
+        })),
       });
     }, 500);
   });
