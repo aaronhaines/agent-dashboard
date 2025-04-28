@@ -28,6 +28,10 @@ const defaultConfigs: Record<
   netWorthSummary: {
     currency: "USD",
   },
+  stockPriceChart: {
+    tickers: ["AAPL", "GOOGL", "MSFT"],
+    timeRange: "1M",
+  },
 };
 
 export const Tools = {
