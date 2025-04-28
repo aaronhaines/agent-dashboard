@@ -22,9 +22,9 @@ export function ModuleCard({ module }: Props) {
 
   return (
     <div className="bg-gray-800 rounded-lg shadow-md flex flex-col min-h-[240px]">
-      <div className="flex-none p-3 flex justify-end">
+      <div className="flex-none p-2 flex justify-end">
         <button
-          className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-700 text-gray-400 hover:bg-red-500 hover:text-white transition-colors duration-200"
+          className="w-6 h-6 flex items-center justify-center rounded-full bg-gray-700 text-gray-400 hover:bg-red-500 hover:text-white transition-colors duration-200 text-sm"
           aria-label="Remove module"
           onClick={() => removeModule(module.id)}
         >
