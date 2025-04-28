@@ -14,14 +14,14 @@ export function ModuleCard({ module }: Props) {
     ];
   if (!VisualizationComponent) {
     return (
-      <div className="bg-gray-800 p-4 rounded-lg shadow-md flex items-center justify-center min-h-[300px]">
+      <div className="bg-gray-800 p-4 rounded-lg shadow-md flex items-center justify-center min-h-[240px]">
         <p className="text-red-400">Unknown module type: {module.moduleType}</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-gray-800 rounded-lg shadow-md flex flex-col min-h-[300px]">
+    <div className="bg-gray-800 rounded-lg shadow-md flex flex-col min-h-[240px]">
       <div className="flex-none p-3 flex justify-end">
         <button
           className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-700 text-gray-400 hover:bg-red-500 hover:text-white transition-colors duration-200"

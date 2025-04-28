@@ -113,6 +113,19 @@ export const visualizationSchemas = {
           description: "Minimum trading volume to include (in thousands)",
           default: 100,
         },
+        trackedAssets: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              symbol: { type: "string" },
+              name: { type: "string" },
+              sector: { type: "string" },
+            },
+            required: ["symbol", "name"],
+          },
+          description: "List of assets to track for market movements",
+        },
       },
     },
   },

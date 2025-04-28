@@ -20,71 +20,67 @@ export interface MarketMoversData {
 async function loadMarketMoversData(
   module: ModuleInstance
 ): Promise<MarketMoversData> {
-  // Get the number of movers to display from config
+  // Get config values with defaults
   const numMovers = (module.config?.numMovers as number) || 5;
+  const trackedAssets =
+    (module.config?.trackedAssets as {
+      symbol: string;
+      name: string;
+      sector?: string;
+    }[]) || [];
 
   // Simulate API call
   return new Promise((resolve) => {
     setTimeout(() => {
-      // Generate mock data for gainers
-      const gainers = Array.from({ length: numMovers }, () => {
-        const price = (Math.random() * 200 + 50).toFixed(2);
-        const changePercent = (Math.random() * 15 + 5).toFixed(2);
-        const change = (
-          (parseFloat(price) * parseFloat(changePercent)) /
-          100
-        ).toFixed(2);
-        const volume = (Math.random() * 10000000).toFixed(0);
+      // Generate mock data for gainers from tracked assets
+      const gainers = Array.from(
+        { length: Math.min(numMovers, Math.ceil(trackedAssets.length / 2)) },
+        () => {
+          const asset =
+            trackedAssets[Math.floor(Math.random() * trackedAssets.length)];
+          const price = (Math.random() * 200 + 50).toFixed(2);
+          const changePercent = (Math.random() * 15 + 5).toFixed(2);
+          const change = (
+            (parseFloat(price) * parseFloat(changePercent)) /
+            100
+          ).toFixed(2);
+          const volume = (Math.random() * 10000000).toFixed(0);
 
-        return {
-          symbol: ["NVDA", "AMD", "TSLA", "META", "AMZN", "NFLX", "AAPL"][
-            Math.floor(Math.random() * 7)
-          ],
-          name: [
-            "NVIDIA Corp",
-            "Advanced Micro Devices",
-            "Tesla Inc",
-            "Meta Platforms",
-            "Amazon.com",
-            "Netflix Inc",
-            "Apple Inc",
-          ][Math.floor(Math.random() * 7)],
-          price: price,
-          change: change,
-          changePercent: changePercent,
-          volume: volume,
-        };
-      });
+          return {
+            symbol: asset.symbol,
+            name: asset.name,
+            price: price,
+            change: change,
+            changePercent: changePercent,
+            volume: volume,
+          };
+        }
+      );
 
-      // Generate mock data for losers
-      const losers = Array.from({ length: numMovers }, () => {
-        const price = (Math.random() * 200 + 50).toFixed(2);
-        const changePercent = (-Math.random() * 15 - 5).toFixed(2);
-        const change = (
-          (parseFloat(price) * parseFloat(changePercent)) /
-          100
-        ).toFixed(2);
-        const volume = (Math.random() * 10000000).toFixed(0);
+      // Generate mock data for losers from tracked assets
+      const losers = Array.from(
+        { length: Math.min(numMovers, Math.ceil(trackedAssets.length / 2)) },
+        () => {
+          const asset =
+            trackedAssets[Math.floor(Math.random() * trackedAssets.length)];
+          const price = (Math.random() * 200 + 50).toFixed(2);
+          const changePercent = (-Math.random() * 15 - 5).toFixed(2);
+          const change = (
+            (parseFloat(price) * parseFloat(changePercent)) /
+            100
+          ).toFixed(2);
+          const volume = (Math.random() * 10000000).toFixed(0);
 
-        return {
-          symbol: ["BAC", "WFC", "C", "JPM", "GS", "MS", "BLK"][
-            Math.floor(Math.random() * 7)
-          ],
-          name: [
-            "Bank of America",
-            "Wells Fargo",
-            "Citigroup",
-            "JPMorgan Chase",
-            "Goldman Sachs",
-            "Morgan Stanley",
-            "BlackRock",
-          ][Math.floor(Math.random() * 7)],
-          price: price,
-          change: change,
-          changePercent: changePercent,
-          volume: volume,
-        };
-      });
+          return {
+            symbol: asset.symbol,
+            name: asset.name,
+            price: price,
+            change: change,
+            changePercent: changePercent,
+            volume: volume,
+          };
+        }
+      );
 
       resolve({
         timestamp: new Date().toLocaleString("en-US", {

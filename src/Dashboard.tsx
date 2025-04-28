@@ -14,9 +14,9 @@ export function Dashboard() {
 
   return (
     <div
-      className="w-full h-full grid gap-6 p-6 auto-rows-min"
+      className="w-full h-full grid gap-4 p-4 auto-rows-min"
       style={{
-        gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 480px), 1fr))",
+        gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 400px), 1fr))",
         alignContent: "start",
       }}
     >

@@ -16,7 +16,7 @@ type ConfigValue =
   | number
   | boolean
   | string[]
-  | { symbol: string; name: string }[];
+  | { symbol: string; name: string; sector?: string }[];
 
 // Default configs for each module type
 const defaultConfigs: Record<
@@ -45,6 +45,20 @@ const defaultConfigs: Record<
   marketMovers: {
     numMovers: 5,
     minVolume: 100,
+    trackedAssets: [
+      { symbol: "NVDA", name: "NVIDIA Corp", sector: "Technology" },
+      { symbol: "AMD", name: "Advanced Micro Devices", sector: "Technology" },
+      { symbol: "TSLA", name: "Tesla Inc", sector: "Automotive" },
+      { symbol: "META", name: "Meta Platforms", sector: "Technology" },
+      { symbol: "AMZN", name: "Amazon.com", sector: "Consumer" },
+      { symbol: "NFLX", name: "Netflix Inc", sector: "Media" },
+      { symbol: "AAPL", name: "Apple Inc", sector: "Technology" },
+      { symbol: "BAC", name: "Bank of America", sector: "Financial" },
+      { symbol: "WFC", name: "Wells Fargo", sector: "Financial" },
+      { symbol: "JPM", name: "JPMorgan Chase", sector: "Financial" },
+      { symbol: "GS", name: "Goldman Sachs", sector: "Financial" },
+      { symbol: "MS", name: "Morgan Stanley", sector: "Financial" },
+    ],
   },
   companyNews: {
     company: "Apple",
