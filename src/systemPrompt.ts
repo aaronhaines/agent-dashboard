@@ -1,11 +1,40 @@
+import { visualizationSchemas } from "./visualizations";
+
+interface SchemaProperty {
+  type: string;
+  enum?: string[];
+  items?: {
+    type: string;
+  };
+}
+
+// Generate the module types documentation dynamically
+const moduleTypesDoc = Object.entries(visualizationSchemas)
+  .map(([type, schema]) => {
+    const configExample = Object.entries(schema.schema.properties)
+      .map(([key, prop]: [string, SchemaProperty]) => {
+        if (prop.enum) {
+          return `${key}: ${prop.enum
+            .map((v: string) => `"${v}"`)
+            .join(" | ")}`;
+        }
+        if (prop.type === "array") {
+          return `${key}?: ${prop.items?.type}[]`;
+        }
+        return `${key}?: ${prop.type}`;
+      })
+      .join(", ");
+
+    return `- ${type}: ${schema.description}. Config example: { ${configExample} }`;
+  })
+  .join("\n");
+
 export const systemPrompt = `You are an intelligent financial dashboard assistant.
 The dashboard consists of modules (charts, tables, summaries).
 You can add, remove, or update modules based on the user's input.
 
 Available module types and their config schemas:
-- portfolioChart: Displays a portfolio value chart. Config example: { timeframe: "1M" | "3M" | "1Y" | "All", showReturns?: boolean }
-- expensesTable: Displays a table of expenses. Config example: { categories?: string[] }
-- netWorthSummary: Shows a summary of net worth. Config example: { currency?: string }
+${moduleTypesDoc}
 
 IMPORTANT: When calling the addModule or updateModuleConfig tool, you MUST always provide a config parameter, even if it is just an empty object ({}).
 
