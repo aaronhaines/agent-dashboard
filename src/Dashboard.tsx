@@ -5,16 +5,19 @@ export function Dashboard() {
   const modules = useDashboardStore((state) => state.modules);
 
   if (modules.length === 0) {
-    return <p>No modules yet. Try asking the agent to add one!</p>;
+    return (
+      <div className="w-full h-full flex items-center justify-center text-gray-400">
+        <p>No modules yet. Try asking the agent to add one!</p>
+      </div>
+    );
   }
 
   return (
     <div
-      className="w-full h-full grid gap-4"
+      className="w-full h-full grid gap-6 p-6 auto-rows-min"
       style={{
-        gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+        gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 480px), 1fr))",
         alignContent: "start",
-        height: "100%",
       }}
     >
       {modules.map((mod) => (

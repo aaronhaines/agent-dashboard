@@ -14,22 +14,26 @@ export function ModuleCard({ module }: Props) {
     ];
   if (!VisualizationComponent) {
     return (
-      <div className="bg-gray-800 p-4 rounded-lg shadow-md h-full flex items-center justify-center min-h-[120px]">
-        Unknown module type: {module.moduleType}
+      <div className="bg-gray-800 p-4 rounded-lg shadow-md flex items-center justify-center min-h-[300px]">
+        <p className="text-red-400">Unknown module type: {module.moduleType}</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-gray-800 p-4 rounded-lg shadow-md h-full flex flex-col justify-between min-h-[200px] relative">
-      <button
-        className="absolute top-2 right-2 text-gray-400 hover:text-red-500 text-lg font-bold focus:outline-none"
-        aria-label="Remove"
-        onClick={() => removeModule(module.id)}
-      >
-        ×
-      </button>
-      <VisualizationComponent module={module} />
+    <div className="bg-gray-800 rounded-lg shadow-md flex flex-col min-h-[300px]">
+      <div className="flex-none p-3 flex justify-end">
+        <button
+          className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-700 text-gray-400 hover:bg-red-500 hover:text-white transition-colors duration-200"
+          aria-label="Remove module"
+          onClick={() => removeModule(module.id)}
+        >
+          ×
+        </button>
+      </div>
+      <div className="flex-1 p-4 pt-0 min-h-0 overflow-auto">
+        <VisualizationComponent module={module} />
+      </div>
     </div>
   );
 }
