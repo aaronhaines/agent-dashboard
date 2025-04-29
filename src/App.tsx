@@ -25,7 +25,15 @@ const azureOptions = useAzure
 
 // Default configurations for each module type
 const defaultConfigs: Record<string, ModuleConfig> = {
-  portfolioChart: { timeRange: "1M" },
+  portfolioSummary: {
+    timeframe: "1M",
+    showReturns: false,
+    trackedAssets: [
+      { symbol: "AAPL", name: "Apple Inc." },
+      { symbol: "GOOGL", name: "Alphabet Inc." },
+      { symbol: "MSFT", name: "Microsoft Corp." },
+    ],
+  },
   expensesTable: { limit: 10 },
   netWorthSummary: { showChart: true },
   stockPriceChart: { tickers: ["AAPL", "GOOGL", "MSFT"], timeRange: "1M" },
@@ -33,7 +41,6 @@ const defaultConfigs: Record<string, ModuleConfig> = {
   companyNews: { company: "AAPL", limit: 5 },
   financialSnapshot: { showChart: true },
   marketAnalysis: { showChart: true },
-  portfolioSummary: { showChart: true },
 };
 
 const toolList = Object.values(Tools).map((tool) => ({
