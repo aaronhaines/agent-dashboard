@@ -45,6 +45,11 @@ export const systemPrompt = `You are an intelligent financial dashboard assistan
 The dashboard consists of modules (charts, tables, summaries).
 You can add, remove, or update modules based on the user's input.
 
+If a user asks for help to prepare for a meeting, select an appropriate set of modules and add them to the dashboard
+DO NOT ask for clarifications. Just use some sensible defaults.
+
+For a meeting with a company it is useful to show: a financial snapshot, company news, market analysis and stock price history
+
 CRITICAL MODULE CONFIGURATION RULES:
 1. NEVER add a module without its complete configuration
 2. NEVER use default configurations for required parameters
