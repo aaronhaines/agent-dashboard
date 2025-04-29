@@ -4,7 +4,7 @@ import { Agent } from "./Agent";
 import { Tools } from "./tools";
 import type { ToolFunction } from "./Agent";
 import { systemPrompt } from "./systemPrompt";
-import { useChatStore, type ChatMessage } from "./chatStore";
+import { useChatStore } from "./chatStore";
 
 const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
 if (!apiKey) {
@@ -31,6 +31,7 @@ const dashboardAgent = new Agent({
 export default function App() {
   const [userPrompt, setUserPrompt] = useState("");
   const [loading, setLoading] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
 
   const messages = useChatStore((state) => state.messages);
@@ -67,69 +68,230 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen h-screen bg-gray-900 text-gray-100 p-4 font-sans">
-      <header className="mb-6">
-        <h1 className="text-2xl font-semibold text-white">
-          Wealth Management Dashboard
-        </h1>
-      </header>
-      <div className="flex flex-row gap-6 h-[calc(100vh-5.5rem)]">
-        {/* Dashboard on the left */}
-        <div className="flex-1 min-w-0 h-full overflow-auto">
-          <Dashboard />
-        </div>
-        {/* Chat panel on the right */}
-        <div className="w-full max-w-[400px] xl:max-w-[450px] flex flex-col bg-gray-800 rounded-lg shadow-lg p-4 h-full">
-          <div className="flex justify-between items-center mb-2">
-            <h2 className="text-lg font-semibold text-blue-300">Agent Chat</h2>
-            <button
-              onClick={() => useChatStore.getState().clearHistory()}
-              className="text-sm text-gray-400 hover:text-gray-300 transition-colors"
+    <div className="min-h-screen h-screen bg-gray-900 flex flex-col text-gray-100 font-sans">
+      {/* Title Bar */}
+      <div className="h-14 bg-gray-800 border-b border-gray-700 flex items-center justify-between px-4 flex-none">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="text-gray-400 hover:text-white transition-colors"
+            aria-label="Toggle sidebar menu"
+          >
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              Clear History
-            </button>
-          </div>
-          <div className="flex-1 overflow-y-auto mb-2 space-y-3 pr-1">
-            {messages.length === 0 && (
-              <div className="text-gray-400 text-sm">
-                No conversation yet. Ask the agent something!
-              </div>
-            )}
-            {messages.map((msg, idx) => (
-              <div
-                key={idx}
-                className={msg.role === "user" ? "text-right" : "text-left"}
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+          </button>
+          <h1 className="text-xl font-semibold text-white">
+            Wealth Management Dashboard
+          </h1>
+        </div>
+        <div className="flex items-center gap-4">
+          <button
+            className="w-8 h-8 rounded-full bg-gray-700 text-white flex items-center justify-center hover:bg-gray-600 transition-colors"
+            aria-label="User profile"
+          >
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div className="flex-1 flex overflow-hidden">
+        {/* Sidebar */}
+        <div
+          className={`w-64 bg-gray-800 border-r border-gray-700 flex-none transition-all duration-300 ${
+            sidebarOpen ? "" : "-ml-64"
+          }`}
+        >
+          <div className="p-4">
+            <nav className="space-y-2">
+              <a
+                href="#"
+                className="flex items-center gap-3 px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-colors"
               >
-                <div
-                  className={
-                    "inline-block px-3 py-2 rounded-lg " +
-                    (msg.role === "user"
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-700 text-gray-100")
-                  }
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  {msg.content}
-                </div>
-              </div>
-            ))}
-            {loading && (
-              <div className="text-left">
-                <div className="inline-block px-3 py-2 rounded-lg bg-gray-700 text-gray-400 animate-pulse">
-                  Agent is working...
-                </div>
-              </div>
-            )}
-            <div ref={chatEndRef} />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                  />
+                </svg>
+                Dashboard
+              </a>
+              <a
+                href="#"
+                className="flex items-center gap-3 px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-colors"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                  />
+                </svg>
+                Analytics
+              </a>
+              <a
+                href="#"
+                className="flex items-center gap-3 px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-colors"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                Investments
+              </a>
+              <a
+                href="#"
+                className="flex items-center gap-3 px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-colors"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
+                </svg>
+                Calendar
+              </a>
+              <a
+                href="#"
+                className="flex items-center gap-3 px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-colors"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+                Settings
+              </a>
+            </nav>
           </div>
-          <form onSubmit={handleSubmit} className="flex-none">
-            <input
-              type="text"
-              value={userPrompt}
-              onChange={(e) => setUserPrompt(e.target.value)}
-              placeholder="Ask the agent to help you..."
-              className="w-full px-4 py-2 rounded-lg bg-gray-700 text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </form>
+        </div>
+
+        {/* Main Content */}
+        <div className="flex-1 flex flex-row gap-6 p-6 overflow-hidden">
+          {/* Dashboard */}
+          <div className="flex-1 min-w-0 h-full overflow-auto">
+            <Dashboard />
+          </div>
+          {/* Chat panel */}
+          <div className="w-full max-w-[400px] xl:max-w-[450px] flex flex-col bg-gray-800 rounded-lg shadow-lg p-4 h-full">
+            <div className="flex justify-between items-center mb-2">
+              <h2 className="text-lg font-semibold text-blue-300">
+                Agent Chat
+              </h2>
+              <button
+                onClick={() => useChatStore.getState().clearHistory()}
+                className="text-sm text-gray-400 hover:text-gray-300 transition-colors"
+              >
+                Clear History
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto mb-2 space-y-3 pr-1">
+              {messages.length === 0 && (
+                <div className="text-gray-400 text-sm">
+                  No conversation yet. Ask the agent something!
+                </div>
+              )}
+              {messages.map((msg, idx) => (
+                <div
+                  key={idx}
+                  className={msg.role === "user" ? "text-right" : "text-left"}
+                >
+                  <div
+                    className={
+                      "inline-block px-3 py-2 rounded-lg " +
+                      (msg.role === "user"
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-700 text-gray-100")
+                    }
+                  >
+                    {msg.content}
+                  </div>
+                </div>
+              ))}
+              {loading && (
+                <div className="text-left">
+                  <div className="inline-block px-3 py-2 rounded-lg bg-gray-700 text-gray-400 animate-pulse">
+                    Agent is typing...
+                  </div>
+                </div>
+              )}
+              <div ref={chatEndRef} />
+            </div>
+            <form onSubmit={handleSubmit} className="flex-none">
+              <input
+                type="text"
+                value={userPrompt}
+                onChange={(e) => setUserPrompt(e.target.value)}
+                placeholder="Ask the agent to help you..."
+                className="w-full px-4 py-2 rounded-lg bg-gray-700 text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </form>
+          </div>
         </div>
       </div>
     </div>
