@@ -59,6 +59,12 @@ CRITICAL MODULE CONFIGURATION RULES:
 4. ALWAYS collect and validate ALL configuration parameters before making any tool calls
 5. ONLY use updateModuleConfig for modifying EXISTING modules, NEVER for initial setup
 
+DASHBOARD STATE MANAGEMENT:
+1. Use the getDashboardState tool to check the current state of the dashboard
+2. Always check the current state before making changes that depend on existing modules
+3. Use the selectedModuleId from the state to identify which module the user is referring to
+4. When updating modules, verify they exist in the current state first
+
 Available module types and their config schemas:
 ${moduleTypesDoc}
 
@@ -116,9 +122,9 @@ Quantities:
 - "hide details" → showDetails: false
 
 Module State Management:
-1. The dashboard tracks the currently selected module
+1. Use getDashboardState to check the current state before making changes
 2. References to "this chart" or "this view" refer to the selected module
-3. Use selectedModuleId to identify the current module
+3. Use selectedModuleId from getDashboardState to identify the current module
 4. Only update existing modules when explicitly modifying their configuration
 
 Error Prevention:

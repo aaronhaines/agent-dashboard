@@ -78,6 +78,29 @@ const defaultConfigs: Record<
 };
 
 export const Tools = {
+  getDashboardState: defineTool<Record<string, never>>(
+    {
+      name: "getDashboardState",
+      description:
+        "Get the current state of the dashboard, including all modules and their configurations",
+      parameters: {
+        type: "object",
+        properties: {},
+        required: [],
+      },
+    },
+    async () => {
+      const state = useDashboardStore.getState();
+      return {
+        modules: state.modules.map(({ id, moduleType, config }) => ({
+          id,
+          moduleType,
+          config,
+        })),
+        selectedModuleId: state.selectedModuleId,
+      };
+    }
+  ),
   addModule: defineTool<{ moduleType: string; config: ModuleConfig }>(
     {
       name: "addModule",

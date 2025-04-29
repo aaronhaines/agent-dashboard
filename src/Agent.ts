@@ -1,5 +1,4 @@
 import { OpenAI } from "openai";
-import { useDashboardStore } from "./dashboardStore";
 
 export type ToolFunction = (args: unknown) => Promise<unknown>;
 
@@ -127,23 +126,6 @@ ${JSON.stringify(scratchpad, null, 2)}`;
     while (true) {
       // Summarize scratchpad if too long
       scratchpad = await this.summarizeScratchpad(scratchpad);
-
-      // Always get the latest dashboard state
-      const latestSnapshot = {
-        modules: useDashboardStore
-          .getState()
-          .modules.map(({ id, moduleType, config }) => ({
-            id,
-            moduleType,
-            config,
-          })),
-        selectedModuleId: useDashboardStore.getState().selectedModuleId,
-      };
-      scratchpad += `\nDashboard state::\n${JSON.stringify(
-        latestSnapshot,
-        null,
-        2
-      )}\n`;
 
       messages[0].content = `${
         this.systemPrompt
