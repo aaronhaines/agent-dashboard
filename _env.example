@@ -1,0 +1,32 @@
+# OpenAI Configuration
+# Required: Your OpenAI API key
+VITE_OPENAI_API_KEY=your_api_key_here
+
+# Azure OpenAI Configuration
+# Required: Set to 'true' to use Azure OpenAI, 'false' to use regular OpenAI
+VITE_USE_AZURE=false
+
+# Required only if VITE_USE_AZURE=true
+# The base URL of your Azure OpenAI resource (e.g., https://your-resource.openai.azure.com)
+VITE_AZURE_BASE_URL=https://your-resource.openai.azure.com
+
+# Required only if VITE_USE_AZURE=true
+# The API version to use (e.g., 2024-02-15-preview)
+VITE_AZURE_API_VERSION=2024-02-15-preview
+
+# Required only if VITE_USE_AZURE=true
+# The deployment name of your model in Azure (this is used as the model name)
+VITE_AZURE_OPENAI_MODEL=gpt-4s
+
+# Example configurations:
+
+# For OpenAI:
+# VITE_OPENAI_API_KEY=sk-...
+# VITE_USE_AZURE=false
+
+# For Azure OpenAI:
+# VITE_OPENAI_API_KEY=your-azure-api-key
+# VITE_USE_AZURE=true
+# VITE_AZURE_BASE_URL=https://your-resource.openai.azure.com
+# VITE_AZURE_API_VERSION=2024-02-15-preview
+# VITE_AZURE_DEPLOYMENT_NAME=gpt-4 
