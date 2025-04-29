@@ -3,12 +3,9 @@ import { defineTool } from "./ToolUtils";
 import { visualizationSchemas } from "./visualizations";
 
 // Extract config type from visualization schemas
-type ModuleConfig = {
-  [K in keyof typeof visualizationSchemas]: {
-    type: "object";
-    properties: (typeof visualizationSchemas)[K]["schema"]["properties"];
-  };
-}[keyof typeof visualizationSchemas];
+export type ModuleConfig = {
+  [key: string]: unknown;
+};
 
 // Type for module configuration values
 type ConfigValue =

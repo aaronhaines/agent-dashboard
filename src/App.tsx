@@ -3,6 +3,7 @@ import { Dashboard } from "./Dashboard";
 import { Agent } from "./Agent";
 import { Tools } from "./tools";
 import type { ToolFunction } from "./Agent";
+import type { ModuleConfig } from "./tools";
 import { systemPrompt } from "./systemPrompt";
 import { useChatStore } from "./chatStore";
 
@@ -21,6 +22,16 @@ const azureOptions = useAzure
       },
     }
   : undefined;
+
+// Default configurations for each module type
+const defaultConfigs: Record<string, ModuleConfig> = {
+  portfolioChart: { timeRange: "1M" },
+  expensesTable: { limit: 10 },
+  netWorthSummary: { showChart: true },
+  stockPriceChart: { tickers: ["AAPL", "GOOGL", "MSFT"], timeRange: "1M" },
+  marketMovers: { limit: 5 },
+  companyNews: { company: "AAPL", limit: 5 },
+};
 
 const toolList = Object.values(Tools).map((tool) => ({
   type: "function" as const,
@@ -108,7 +119,84 @@ export default function App() {
             Wealth Management Dashboard
           </h1>
         </div>
-        <div className="flex items-center gap-4">
+
+        {/* Module Quick-Add Buttons */}
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-700 rounded-lg">
+            <span className="text-sm text-gray-400">Add Module:</span>
+            <button
+              onClick={() =>
+                Tools.addModule.handler({
+                  moduleType: "portfolioChart",
+                  config: defaultConfigs.portfolioChart,
+                })
+              }
+              className="px-2 py-1 text-sm text-blue-300 hover:text-blue-200 hover:bg-gray-600 rounded transition-colors"
+              title="Add Portfolio Chart"
+            >
+              Portfolio
+            </button>
+            <button
+              onClick={() =>
+                Tools.addModule.handler({
+                  moduleType: "expensesTable",
+                  config: defaultConfigs.expensesTable,
+                })
+              }
+              className="px-2 py-1 text-sm text-green-300 hover:text-green-200 hover:bg-gray-600 rounded transition-colors"
+              title="Add Expenses Table"
+            >
+              Expenses
+            </button>
+            <button
+              onClick={() =>
+                Tools.addModule.handler({
+                  moduleType: "netWorthSummary",
+                  config: defaultConfigs.netWorthSummary,
+                })
+              }
+              className="px-2 py-1 text-sm text-purple-300 hover:text-purple-200 hover:bg-gray-600 rounded transition-colors"
+              title="Add Net Worth Summary"
+            >
+              Net Worth
+            </button>
+            <button
+              onClick={() =>
+                Tools.addModule.handler({
+                  moduleType: "stockPriceChart",
+                  config: defaultConfigs.stockPriceChart,
+                })
+              }
+              className="px-2 py-1 text-sm text-yellow-300 hover:text-yellow-200 hover:bg-gray-600 rounded transition-colors"
+              title="Add Stock Price Chart"
+            >
+              Stocks
+            </button>
+            <button
+              onClick={() =>
+                Tools.addModule.handler({
+                  moduleType: "marketMovers",
+                  config: defaultConfigs.marketMovers,
+                })
+              }
+              className="px-2 py-1 text-sm text-red-300 hover:text-red-200 hover:bg-gray-600 rounded transition-colors"
+              title="Add Market Movers"
+            >
+              Market
+            </button>
+            <button
+              onClick={() =>
+                Tools.addModule.handler({
+                  moduleType: "companyNews",
+                  config: defaultConfigs.companyNews,
+                })
+              }
+              className="px-2 py-1 text-sm text-orange-300 hover:text-orange-200 hover:bg-gray-600 rounded transition-colors"
+              title="Add Company News"
+            >
+              News
+            </button>
+          </div>
           <button
             className="w-8 h-8 rounded-full bg-gray-700 text-white flex items-center justify-center hover:bg-gray-600 transition-colors"
             aria-label="User profile"
