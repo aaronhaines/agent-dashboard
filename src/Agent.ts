@@ -30,7 +30,11 @@ export class Agent {
       apiKey: options.apiKey,
       dangerouslyAllowBrowser: true,
       ...(options.azure && {
-        azure: options.azure,
+        azure: {
+          ...options.azure,
+          defaultQuery: { "api-version": options.azure.apiVersion },
+          defaultHeaders: { "api-key": options.apiKey },
+        },
       }),
     });
     this.model = options.azure?.deploymentName || options.model || "gpt-4o";
