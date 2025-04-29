@@ -6,6 +6,7 @@ import type { ToolFunction } from "./Agent";
 import type { ModuleConfig } from "./tools";
 import { systemPrompt } from "./systemPrompt";
 import { useChatStore } from "./chatStore";
+import { AgentResponse } from "./components/AgentResponse";
 
 const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
 if (!apiKey) {
@@ -83,6 +84,7 @@ export default function App() {
 
     // Add user message to chat
     addMessage({ role: "user", content: userPrompt });
+    setUserPrompt("");
     setLoading(true);
 
     try {
@@ -97,7 +99,6 @@ export default function App() {
       });
     } finally {
       setLoading(false);
-      setUserPrompt("");
     }
   }
 
@@ -450,20 +451,27 @@ export default function App() {
                   No conversation yet. Ask the agent something!
                 </div>
               )}
-              {messages.map((msg, idx) => (
+              {messages.map((message, index) => (
                 <div
-                  key={idx}
-                  className={msg.role === "user" ? "text-right" : "text-left"}
+                  key={index}
+                  className={`flex ${
+                    message.role === "user" ? "justify-end" : "justify-start"
+                  }`}
                 >
                   <div
-                    className={
-                      "inline-block px-3 py-2 rounded-lg " +
-                      (msg.role === "user"
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-700 text-gray-100")
-                    }
+                    className={`max-w-[85%] rounded-lg ${
+                      message.role === "user"
+                        ? "bg-blue-600 text-white p-3"
+                        : "w-full"
+                    }`}
                   >
-                    {msg.content}
+                    {message.role === "user" ? (
+                      <div className="whitespace-pre-wrap">
+                        {message.content}
+                      </div>
+                    ) : (
+                      <AgentResponse content={message.content} />
+                    )}
                   </div>
                 </div>
               ))}

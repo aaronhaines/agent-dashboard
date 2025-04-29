@@ -96,6 +96,12 @@ export class Agent {
     userPrompt: string,
     history: { role: "user" | "agent"; content: string }[]
   ): Promise<string> {
+    // Track thought process for the response
+    const thoughts: Array<{
+      type: "planning" | "reasoning" | "final";
+      content: string;
+    }> = [];
+
     console.log("\n🤖 Agent Run Started");
     console.log("📝 User Prompt:", userPrompt);
 
@@ -140,6 +146,8 @@ export class Agent {
     console.log(planMessage);
     console.log("--------------------------------");
 
+    thoughts.push({ type: "planning", content: planMessage });
+
     scratchpad += `\nAgent plan:\n${planMessage}\n`;
     scratchpadMessage.content = scratchpad;
     messages.push({ role: "assistant", content: planMessage });
@@ -172,10 +180,13 @@ export class Agent {
       const choice = response.choices[0];
 
       if (choice.finish_reason === "tool_calls" && choice.message.tool_calls) {
+        const reasoning = choice.message.content || "(No explanation provided)";
         console.log("\n💭 Assistant's Reasoning:");
         console.log("--------------------------------");
-        console.log(choice.message.content || "(No explanation provided)");
+        console.log(reasoning);
         console.log("--------------------------------");
+
+        thoughts.push({ type: "reasoning", content: reasoning });
 
         // Add assistant message to history
         messages.push(choice.message);
@@ -241,14 +252,25 @@ export class Agent {
         console.log("--------------------------------");
         console.log("\n✅ Agent completed task");
 
+        thoughts.push({ type: "final", content: finalResponse });
+
         scratchpad += `\nAssistant: ${finalResponse}\n`;
         scratchpadMessage.content = scratchpad;
-        // Add the final summary to the conversation
+
+        // Format the response with thoughts for display
+        const formattedResponse = JSON.stringify({
+          response: finalResponse,
+          thoughts: thoughts,
+          isDisplay: true, // Flag to indicate this is for display only
+        });
+
+        // Add only the final response to the conversation history
         messages.push({
           role: "assistant",
           content: finalResponse,
         });
-        return finalResponse;
+
+        return formattedResponse;
       }
 
       break;
