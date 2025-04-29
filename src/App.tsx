@@ -44,6 +44,7 @@ export default function App() {
   const [userPrompt, setUserPrompt] = useState("");
   const [loading, setLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [chatOpen, setChatOpen] = useState(true);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
 
   const messages = useChatStore((state) => state.messages);
@@ -244,13 +245,45 @@ export default function App() {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-row gap-6 p-6 overflow-hidden">
+        <div className="flex-1 flex flex-row p-6 overflow-hidden relative">
           {/* Dashboard */}
-          <div className="flex-1 min-w-0 h-full overflow-auto">
+          <div
+            className={`flex-1 min-w-0 h-full overflow-auto transition-all duration-300 ${
+              chatOpen ? "pr-[calc(400px+1.5rem)]" : "pr-0"
+            } xl:${chatOpen ? "pr-[calc(450px+1.5rem)]" : "pr-0"}`}
+          >
             <Dashboard />
           </div>
+
+          {/* Chat Toggle Button */}
+          <button
+            onClick={() => setChatOpen(!chatOpen)}
+            className="fixed right-0 top-1/2 -translate-y-1/2 bg-gray-800 p-2 rounded-l-lg shadow-lg text-gray-400 hover:text-white transition-colors z-10"
+            aria-label={chatOpen ? "Hide chat" : "Show chat"}
+          >
+            <svg
+              className={`w-5 h-5 transition-transform ${
+                chatOpen ? "rotate-0" : "rotate-180"
+              }`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </button>
+
           {/* Chat panel */}
-          <div className="w-full max-w-[400px] xl:max-w-[450px] flex flex-col bg-gray-800 rounded-lg shadow-lg p-4 h-full">
+          <div
+            className={`fixed right-0 top-[5.5rem] bottom-6 w-[400px] xl:w-[450px] flex flex-col bg-gray-800 rounded-lg shadow-lg p-4 transition-transform duration-300 ${
+              chatOpen ? "translate-x-0" : "translate-x-full"
+            }`}
+          >
             <div className="flex justify-between items-center mb-2">
               <h2 className="text-lg font-semibold text-blue-300">
                 Agent Chat
@@ -288,7 +321,7 @@ export default function App() {
               {loading && (
                 <div className="text-left">
                   <div className="inline-block px-3 py-2 rounded-lg bg-gray-700 text-gray-400 animate-pulse">
-                    Agent is typing...
+                    Thinking...
                   </div>
                 </div>
               )}
