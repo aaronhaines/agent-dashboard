@@ -1,8 +1,6 @@
 import { useDashboardStore } from "./dashboardStore";
 import { defineTool } from "./ToolUtils";
 import { visualizationSchemas } from "./visualizations";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
 
 // Extract config type from visualization schemas
 export type ModuleConfig = {
@@ -137,82 +135,6 @@ export const Tools = {
       return `Updated module ${moduleId} with new config ${JSON.stringify(
         config
       )}`;
-    }
-  ),
-  exportToPdf: defineTool<{ filename?: string }>(
-    {
-      name: "exportToPdf",
-      description: "Export the current dashboard to a PDF file",
-      parameters: {
-        type: "object",
-        properties: {
-          filename: {
-            type: "string",
-            description:
-              "Optional filename for the PDF (default: dashboard.pdf)",
-          },
-        },
-        required: [],
-      },
-    },
-    async ({ filename = "dashboard.pdf" }) => {
-      const dashboard = document.querySelector(
-        ".dashboard-content"
-      ) as HTMLElement;
-      if (!dashboard) {
-        throw new Error("Dashboard element not found");
-      }
-
-      try {
-        // Force color-space to RGB before capture
-        const styleSheet = document.createElement("style");
-        styleSheet.textContent = `
-          * {
-            color-scheme: dark;
-            forced-color-adjust: none;
-            color: rgb(var(--text-color, 255 255 255)) !important;
-            background-color: rgb(17 24 39) !important;
-            border-color: rgb(55 65 81) !important;
-          }
-          .bg-gray-700 { background-color: rgb(55 65 81) !important; }
-          .bg-gray-800 { background-color: rgb(31 41 55) !important; }
-          .text-gray-400 { color: rgb(156 163 175) !important; }
-          .text-blue-300 { color: rgb(147 197 253) !important; }
-          .text-green-300 { color: rgb(134 239 172) !important; }
-          .text-purple-300 { color: rgb(216 180 254) !important; }
-          .text-yellow-300 { color: rgb(253 224 71) !important; }
-          .text-red-300 { color: rgb(252 165 165) !important; }
-          .text-orange-300 { color: rgb(253 186 116) !important; }
-        `;
-        dashboard.appendChild(styleSheet);
-
-        const canvas = await html2canvas(dashboard, {
-          scale: 2, // Higher quality
-          useCORS: true, // Handle cross-origin images
-          logging: false,
-          backgroundColor: "#111827", // Match dashboard background
-          removeContainer: true, // Clean up temporary elements
-        });
-
-        // Remove temporary style sheet
-        styleSheet.remove();
-
-        const imgData = canvas.toDataURL("image/png");
-        const pdf = new jsPDF({
-          orientation: "landscape",
-          unit: "px",
-          format: [canvas.width, canvas.height],
-        });
-
-        pdf.addImage(imgData, "PNG", 0, 0, canvas.width, canvas.height);
-        pdf.save(filename);
-
-        return `Dashboard exported successfully to ${filename}`;
-      } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error ? error.message : "Unknown error occurred";
-        throw new Error(`Failed to export dashboard: ${errorMessage}`);
-      }
     }
   ),
 };

@@ -197,35 +197,6 @@ export default function App() {
               News
             </button>
           </div>
-
-          {/* Export Button */}
-          <button
-            onClick={() =>
-              Tools.exportToPdf.handler({
-                filename: `dashboard-${
-                  new Date().toISOString().split("T")[0]
-                }.pdf`,
-              })
-            }
-            className="px-3 py-1.5 text-sm bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg flex items-center gap-2 transition-colors"
-            title="Export dashboard to PDF"
-          >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-              />
-            </svg>
-            Export PDF
-          </button>
-
           <button
             className="w-8 h-8 rounded-full bg-gray-700 text-white flex items-center justify-center hover:bg-gray-600 transition-colors"
             aria-label="User profile"

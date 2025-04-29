@@ -12,8 +12,6 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.1.4",
     "@types/react-resizable": "^3.0.8",
-    "html2canvas": "^1.4.1",
-    "jspdf": "^3.0.1",
     "openai": "^4.96.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

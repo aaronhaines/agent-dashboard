@@ -13,9 +13,9 @@ export function Dashboard() {
   }
 
   return (
-    <div className="dashboard-content grid grid-cols-[repeat(auto-fill,minmax(400px,1fr))] gap-4">
-      {modules.map((module) => (
-        <ModuleCard key={module.id} module={module} />
+    <div className="w-full h-full p-4 flex flex-wrap gap-4 content-start">
+      {modules.map((mod) => (
+        <ModuleCard key={mod.id} module={mod} />
       ))}
     </div>
   );
