@@ -29,7 +29,7 @@ const PDF_STYLES = `
 
   /* Force all text colors to use RGB */
   .dashboard-content-pdf * {
-    color: rgb(255, 255, 255);
+    color: rgb(255, 255, 255) !important;
   }
 
   /* Background colors */
@@ -61,6 +61,68 @@ const PDF_STYLES = `
   .dashboard-content-pdf .border-gray-800 { border-color: rgb(31, 41, 55) !important; }
 `;
 
+// Default colors to use when encountering unsupported color formats
+const DEFAULT_COLORS = {
+  text: "rgb(255, 255, 255)",
+  background: "rgb(31, 41, 55)",
+  border: "rgb(55, 65, 81)",
+};
+
+// Function to process all elements and convert modern color formats
+function preprocessColors(element: HTMLElement) {
+  const elements = element.getElementsByTagName("*");
+
+  for (let i = 0; i < elements.length; i++) {
+    const el = elements[i] as HTMLElement;
+    const computedStyle = window.getComputedStyle(el);
+
+    // Check for and convert any modern color formats
+    const colorProps = [
+      "color",
+      "background-color",
+      "border-color",
+      "fill",
+      "stroke",
+    ];
+
+    colorProps.forEach((prop) => {
+      const value = computedStyle.getPropertyValue(prop);
+      if (value.includes("oklab") || value.includes("oklch")) {
+        switch (prop) {
+          case "color":
+            el.style.setProperty(prop, DEFAULT_COLORS.text, "important");
+            break;
+          case "background-color":
+            el.style.setProperty(prop, DEFAULT_COLORS.background, "important");
+            break;
+          case "border-color":
+            el.style.setProperty(prop, DEFAULT_COLORS.border, "important");
+            break;
+          case "fill":
+          case "stroke":
+            el.style.setProperty(prop, DEFAULT_COLORS.text, "important");
+            break;
+        }
+      }
+    });
+
+    // Handle Tailwind classes that might use modern colors
+    // Convert className to string, handling both string and DOMTokenList cases
+    const classNames =
+      typeof el.className === "string"
+        ? el.className
+        : (el.className as SVGAnimatedString)?.baseVal || "";
+
+    if (classNames) {
+      if (classNames.includes("bg-"))
+        el.style.backgroundColor = DEFAULT_COLORS.background;
+      if (classNames.includes("text-")) el.style.color = DEFAULT_COLORS.text;
+      if (classNames.includes("border-"))
+        el.style.borderColor = DEFAULT_COLORS.border;
+    }
+  }
+}
+
 export const exportDashboardToPdf = async (filename?: string) => {
   try {
     const dashboard = document.querySelector(".dashboard-content");
@@ -91,17 +153,21 @@ export const exportDashboardToPdf = async (filename?: string) => {
     tempContainer.style.backgroundColor = "rgb(17, 24, 39)"; // bg-gray-900
     tempContainer.appendChild(clone);
 
+    // Add PDF styles
     const styleSheet = document.createElement("style");
     styleSheet.textContent = PDF_STYLES;
     document.head.appendChild(styleSheet);
     document.body.appendChild(tempContainer);
 
+    // Preprocess colors before html2canvas runs
+    preprocessColors(clone);
+
     // Force all charts and SVGs to use compatible colors
     const charts = clone.querySelectorAll("canvas, svg");
     charts.forEach((chart) => {
       const element = chart as HTMLElement;
-      element.style.backgroundColor = "rgb(31, 41, 55)"; // bg-gray-800
-      element.style.color = "rgb(255, 255, 255)";
+      element.style.backgroundColor = DEFAULT_COLORS.background;
+      element.style.color = DEFAULT_COLORS.text;
     });
 
     // Wait for any charts or images to load
@@ -116,17 +182,13 @@ export const exportDashboardToPdf = async (filename?: string) => {
       height: contentHeight,
       backgroundColor: "#111827", // bg-gray-900
       onclone: (clonedDoc) => {
-        // Additional color fixes for dynamic elements
-        const elements = clonedDoc.querySelectorAll("*");
-        elements.forEach((el) => {
-          const element = el as HTMLElement;
-          if (element.style.color?.includes("oklch")) {
-            element.style.color = "rgb(255, 255, 255)";
-          }
-          if (element.style.backgroundColor?.includes("oklch")) {
-            element.style.backgroundColor = "rgb(31, 41, 55)";
-          }
-        });
+        // Additional preprocessing for the cloned document
+        const clonedElement = clonedDoc.querySelector(
+          ".dashboard-content-pdf"
+        ) as HTMLElement;
+        if (clonedElement) {
+          preprocessColors(clonedElement);
+        }
       },
     });
 
