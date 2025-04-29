@@ -65,6 +65,16 @@ const defaultConfigs: Record<
   financialSnapshot: {
     companyName: "Apple Inc.",
   },
+  marketAnalysis: {
+    companyName: "Apple Inc.",
+    sector: "Technology",
+    competitors: [
+      { name: "Microsoft Corp", symbol: "MSFT" },
+      { name: "Alphabet Inc", symbol: "GOOGL" },
+      { name: "Meta Platforms", symbol: "META" },
+      { name: "Amazon.com", symbol: "AMZN" },
+    ],
+  },
 };
 
 export const Tools = {

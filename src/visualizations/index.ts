@@ -12,6 +12,7 @@ import { StockPriceChart, type StockPriceData } from "./StockPriceChart";
 import { MarketMovers, type MarketMoversData } from "./MarketMovers";
 import { CompanyNews, type CompanyNewsData } from "./CompanyNews";
 import { FinancialSnapshot } from "./FinancialSnapshot";
+import { MarketAnalysis, type MarketAnalysisData } from "./MarketAnalysis";
 
 // Schema definitions for each visualization type
 export const visualizationSchemas = {
@@ -165,6 +166,37 @@ export const visualizationSchemas = {
       required: ["companyName"],
     },
   },
+  marketAnalysis: {
+    name: "marketAnalysis",
+    description: "Displays market and competitor analysis",
+    component: MarketAnalysis,
+    schema: {
+      type: "object",
+      properties: {
+        companyName: {
+          type: "string",
+          description: "Name of the company to analyze",
+        },
+        sector: {
+          type: "string",
+          description: "Industry sector of the company",
+        },
+        competitors: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              name: { type: "string" },
+              symbol: { type: "string" },
+            },
+            required: ["name", "symbol"],
+          },
+          description: "List of competitors to analyze",
+        },
+      },
+      required: ["companyName", "sector"],
+    },
+  },
 } as const;
 
 // Map of module types to their React components (for backward compatibility)
@@ -176,6 +208,7 @@ export const visualizationComponents = {
   marketMovers: MarketMovers,
   companyNews: CompanyNews,
   financialSnapshot: FinancialSnapshot,
+  marketAnalysis: MarketAnalysis,
 } as const;
 
 // Type for all possible module data
@@ -185,7 +218,8 @@ export type ModuleData =
   | NetWorthSummaryData
   | StockPriceData
   | MarketMoversData
-  | CompanyNewsData;
+  | CompanyNewsData
+  | MarketAnalysisData;
 
 // Type for all possible module types
 export type ModuleType = keyof typeof visualizationComponents;
@@ -199,4 +233,5 @@ export type {
   StockPriceData,
   MarketMoversData,
   CompanyNewsData,
+  MarketAnalysisData,
 };

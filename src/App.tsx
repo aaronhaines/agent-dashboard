@@ -32,6 +32,7 @@ const defaultConfigs: Record<string, ModuleConfig> = {
   marketMovers: { limit: 5 },
   companyNews: { company: "AAPL", limit: 5 },
   financialSnapshot: { showChart: true },
+  marketAnalysis: { showChart: true },
 };
 
 const toolList = Object.values(Tools).map((tool) => ({
@@ -206,6 +207,18 @@ export default function App() {
               title="Add Financial Snapshot"
             >
               Financials
+            </button>
+            <button
+              onClick={() =>
+                Tools.addModule.handler({
+                  moduleType: "marketAnalysis",
+                  config: defaultConfigs.marketAnalysis,
+                })
+              }
+              className="px-2 py-1 text-sm text-purple-400 hover:text-purple-300 hover:bg-gray-600 rounded transition-colors"
+              title="Add Market Analysis"
+            >
+              Market
             </button>
           </div>
 
