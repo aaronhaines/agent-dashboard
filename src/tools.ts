@@ -62,6 +62,9 @@ const defaultConfigs: Record<
     company: "Apple",
     timeRange: "1W",
   },
+  financialSnapshot: {
+    companyName: "Apple Inc.",
+  },
 };
 
 export const Tools = {

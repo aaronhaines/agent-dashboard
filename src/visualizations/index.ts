@@ -11,6 +11,7 @@ import { NetWorthSummary, type NetWorthSummaryData } from "./NetWorthSummary";
 import { StockPriceChart, type StockPriceData } from "./StockPriceChart";
 import { MarketMovers, type MarketMoversData } from "./MarketMovers";
 import { CompanyNews, type CompanyNewsData } from "./CompanyNews";
+import { FinancialSnapshot } from "./FinancialSnapshot";
 
 // Schema definitions for each visualization type
 export const visualizationSchemas = {
@@ -149,6 +150,21 @@ export const visualizationSchemas = {
       required: ["company", "timeRange"],
     },
   },
+  financialSnapshot: {
+    name: "financialSnapshot",
+    description: "Displays a financial snapshot of a company",
+    component: FinancialSnapshot,
+    schema: {
+      type: "object",
+      properties: {
+        companyName: {
+          type: "string",
+          description: "Name of the company to display financial data for",
+        },
+      },
+      required: ["companyName"],
+    },
+  },
 } as const;
 
 // Map of module types to their React components (for backward compatibility)
@@ -159,6 +175,7 @@ export const visualizationComponents = {
   stockPriceChart: StockPriceChart,
   marketMovers: MarketMovers,
   companyNews: CompanyNews,
+  financialSnapshot: FinancialSnapshot,
 } as const;
 
 // Type for all possible module data

@@ -31,6 +31,7 @@ const defaultConfigs: Record<string, ModuleConfig> = {
   stockPriceChart: { tickers: ["AAPL", "GOOGL", "MSFT"], timeRange: "1M" },
   marketMovers: { limit: 5 },
   companyNews: { company: "AAPL", limit: 5 },
+  financialSnapshot: { showChart: true },
 };
 
 const toolList = Object.values(Tools).map((tool) => ({
@@ -115,9 +116,7 @@ export default function App() {
               />
             </svg>
           </button>
-          <h1 className="text-xl font-semibold text-white">
-            Wealth Management Dashboard
-          </h1>
+          <h1 className="text-xl font-semibold text-white">Workspace 360</h1>
         </div>
 
         {/* Right side buttons */}
@@ -195,6 +194,18 @@ export default function App() {
               title="Add Company News"
             >
               News
+            </button>
+            <button
+              onClick={() =>
+                Tools.addModule.handler({
+                  moduleType: "financialSnapshot",
+                  config: defaultConfigs.financialSnapshot,
+                })
+              }
+              className="px-2 py-1 text-sm text-blue-400 hover:text-blue-300 hover:bg-gray-600 rounded transition-colors"
+              title="Add Financial Snapshot"
+            >
+              Financials
             </button>
           </div>
 
