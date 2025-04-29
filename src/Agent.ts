@@ -10,6 +10,11 @@ interface AgentOptions {
   toolFunctions: Record<string, ToolFunction>;
   apiKey: string;
   toolTimeoutMs?: number;
+  azure?: {
+    apiVersion: string;
+    endpoint: string;
+    deploymentName: string;
+  };
 }
 
 export class Agent {
@@ -24,8 +29,11 @@ export class Agent {
     this.openai = new OpenAI({
       apiKey: options.apiKey,
       dangerouslyAllowBrowser: true,
+      ...(options.azure && {
+        azure: options.azure,
+      }),
     });
-    this.model = options.model || "gpt-4o";
+    this.model = options.azure?.deploymentName || options.model || "gpt-4o";
     this.systemPrompt = options.systemPrompt;
     this.tools = options.tools;
     this.toolFunctions = options.toolFunctions;

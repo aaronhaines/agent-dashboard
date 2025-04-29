@@ -11,6 +11,17 @@ if (!apiKey) {
   console.error("OpenAI API key not found in environment variables");
 }
 
+const useAzure = import.meta.env.VITE_USE_AZURE === "true";
+const azureOptions = useAzure
+  ? {
+      azure: {
+        apiVersion: import.meta.env.VITE_AZURE_API_VERSION,
+        endpoint: import.meta.env.VITE_AZURE_BASE_URL,
+        deploymentName: import.meta.env.VITE_AZURE_OPENAI_MODEL,
+      },
+    }
+  : undefined;
+
 const toolList = Object.values(Tools).map((tool) => ({
   type: "function" as const,
   function: tool.schema,
@@ -26,6 +37,7 @@ const dashboardAgent = new Agent({
   tools: toolList,
   toolFunctions: toolFunctions,
   toolTimeoutMs: 5000,
+  ...azureOptions,
 });
 
 export default function App() {
