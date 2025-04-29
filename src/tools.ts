@@ -1,6 +1,7 @@
 import { useDashboardStore } from "./dashboardStore";
 import { defineTool } from "./ToolUtils";
 import { visualizationSchemas } from "./visualizations";
+import { exportDashboardToPdf } from "./utils/pdfExport";
 
 // Extract config type from visualization schemas
 export type ModuleConfig = {
@@ -135,6 +136,26 @@ export const Tools = {
       return `Updated module ${moduleId} with new config ${JSON.stringify(
         config
       )}`;
+    }
+  ),
+  exportToPdf: defineTool<{ filename?: string }>(
+    {
+      name: "exportToPdf",
+      description: "Export the current dashboard to a PDF file",
+      parameters: {
+        type: "object",
+        properties: {
+          filename: {
+            type: "string",
+            description: "Optional filename for the exported PDF",
+          },
+        },
+        required: [],
+      },
+    },
+    async ({ filename }) => {
+      await exportDashboardToPdf(filename);
+      return "Dashboard exported successfully to PDF";
     }
   ),
 };
