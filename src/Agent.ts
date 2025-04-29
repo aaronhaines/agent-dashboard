@@ -59,17 +59,32 @@ export class Agent {
     // Keep the last 1000 chars verbatim
     const recent = scratchpad.slice(-1000);
     const toSummarize = scratchpad.slice(0, -1000);
-    const prompt = `Summarize the following agent scratchpad history for context, focusing on key actions, tool calls, and results. Be concise but preserve important details.\n\nHistory:\n${toSummarize}`;
+
+    const messages: OpenAI.ChatCompletionMessageParam[] = [
+      {
+        role: "system",
+        content:
+          "You are a helpful assistant that summarizes agent reasoning and tool call history.",
+      },
+      {
+        role: "user",
+        content:
+          "Summarize the following agent history, focusing on key actions, tool calls, and results. Be concise but preserve important details.",
+      },
+      {
+        role: "assistant",
+        content:
+          "I'll summarize the history, focusing on key actions and outcomes.",
+      },
+      {
+        role: "user",
+        content: toSummarize,
+      },
+    ];
+
     const response = await this.openai.chat.completions.create({
       model: this.model,
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are a helpful assistant that summarizes agent reasoning and tool call history.",
-        },
-        { role: "user", content: prompt },
-      ],
+      messages,
       temperature: 0,
       max_tokens: 256,
     });
@@ -81,35 +96,36 @@ export class Agent {
     userPrompt: string,
     history: { role: "user" | "agent"; content: string }[]
   ): Promise<string> {
-    let scratchpad = `User: ${userPrompt}\n`;
+    console.log("\n🤖 Agent Run Started");
+    console.log("📝 User Prompt:", userPrompt);
 
-    // Convert app chat history to OpenAI message format
-    const historyMessages: OpenAI.ChatCompletionMessageParam[] = history.map(
-      (msg) => ({
-        role: msg.role === "user" ? "user" : "assistant",
-        content: msg.content,
-      })
-    );
-
+    // Initialize messages array with system prompt
     const messages: OpenAI.ChatCompletionMessageParam[] = [
-      {
-        role: "system",
-        content: "",
-      },
-      ...historyMessages,
-      {
-        role: "user",
-        content: userPrompt,
-      },
+      { role: "system", content: this.systemPrompt },
     ];
 
-    // Step 1: Ask the agent to define goals and sub-goals, then generate a plan (chain of thought)
-    messages[0].content = `${this.systemPrompt}
+    // Add conversation history
+    const historyMessages = history.map((msg) => ({
+      role: msg.role === "user" ? "user" : "assistant",
+      content: msg.content,
+    })) as OpenAI.ChatCompletionMessageParam[];
+    messages.push(...historyMessages);
+    console.log(`📚 Added ${historyMessages.length} history messages`);
 
-Conversation history scratchpad::
-${JSON.stringify(scratchpad, null, 2)}`;
+    // Add current user prompt
+    messages.push({ role: "user", content: userPrompt });
 
-    // Get the plan from the agent
+    // Initialize scratchpad
+    let scratchpad = `User: ${userPrompt}\n`;
+    const scratchpadMessage: OpenAI.ChatCompletionMessageParam = {
+      role: "system",
+      name: "scratchpad",
+      content: scratchpad,
+    };
+    messages.push(scratchpadMessage);
+
+    // Step 1: Get the plan from the agent
+    console.log("\n🤔 Planning Phase Started");
     const planResponse = await this.openai.chat.completions.create({
       model: this.model,
       messages,
@@ -119,21 +135,31 @@ ${JSON.stringify(scratchpad, null, 2)}`;
     });
 
     const planMessage = planResponse.choices[0].message.content || "";
+    console.log("\n💭 Assistant's Planning Thoughts:");
+    console.log("--------------------------------");
+    console.log(planMessage);
+    console.log("--------------------------------");
+
     scratchpad += `\nAgent plan:\n${planMessage}\n`;
+    scratchpadMessage.content = scratchpad;
     messages.push({ role: "assistant", content: planMessage });
 
     // Step 2: Execute the plan (allow tool calls)
+    console.log("\n🔄 Execution Phase Started");
+    let iterationCount = 0;
     while (true) {
-      // Summarize scratchpad if too long
-      scratchpad = await this.summarizeScratchpad(scratchpad);
+      iterationCount++;
+      console.log(`\n📍 Iteration ${iterationCount}`);
 
-      messages[0].content = `${
-        this.systemPrompt
-      }\n\nConversation history scratchpad::\n${JSON.stringify(
-        scratchpad,
-        null,
-        2
-      )}`;
+      // Summarize scratchpad if too long
+      const originalLength = scratchpad.length;
+      scratchpad = await this.summarizeScratchpad(scratchpad);
+      if (scratchpad.length < originalLength) {
+        console.log(
+          `📝 Summarized scratchpad from ${originalLength} to ${scratchpad.length} characters`
+        );
+      }
+      scratchpadMessage.content = scratchpad;
 
       const response = await this.openai.chat.completions.create({
         model: this.model,
@@ -146,17 +172,27 @@ ${JSON.stringify(scratchpad, null, 2)}`;
       const choice = response.choices[0];
 
       if (choice.finish_reason === "tool_calls" && choice.message.tool_calls) {
+        console.log("\n💭 Assistant's Reasoning:");
+        console.log("--------------------------------");
+        console.log(choice.message.content || "(No explanation provided)");
+        console.log("--------------------------------");
+
         // Add assistant message to history
         messages.push(choice.message);
+        console.log(
+          `🛠️ Agent requested ${choice.message.tool_calls.length} tool calls`
+        );
 
         const toolCallPromises = choice.message.tool_calls.map(
           async (toolCall) => {
             const { name, arguments: argsString } = toolCall.function;
             const args = JSON.parse(argsString);
+            console.log(`\n🔧 Executing tool: ${name}`);
+            console.log("📥 Arguments:", args);
 
             const toolFn = this.toolFunctions[name];
             if (!toolFn) {
-              console.error(`Tool ${name} not implemented locally.`);
+              console.error(`❌ Tool ${name} not implemented locally.`);
               return null;
             }
 
@@ -165,18 +201,20 @@ ${JSON.stringify(scratchpad, null, 2)}`;
                 toolFn(args),
                 this.toolTimeoutMs
               );
+              console.log("📤 Tool result:", toolResult);
 
               scratchpad += `\nTool ${name} called with args ${JSON.stringify(
                 args
               )}.\nResult: ${JSON.stringify(toolResult)}\n`;
+              scratchpadMessage.content = scratchpad;
+
               return {
                 role: "tool",
                 tool_call_id: toolCall.id,
                 content: JSON.stringify(toolResult),
               } as OpenAI.ChatCompletionMessageParam;
             } catch (error) {
-              console.error(`Error calling tool ${name}:`, error);
-
+              console.error(`❌ Error executing tool ${name}:`, error);
               return {
                 role: "tool",
                 tool_call_id: toolCall.id,
@@ -196,19 +234,27 @@ ${JSON.stringify(scratchpad, null, 2)}`;
       }
 
       if (choice.finish_reason === "stop") {
-        scratchpad += `\nAssistant: ${choice.message.content}\n`;
-        console.log(scratchpad);
+        const finalResponse = choice.message.content || "";
+        console.log("\n💭 Assistant's Final Thoughts:");
+        console.log("--------------------------------");
+        console.log(finalResponse);
+        console.log("--------------------------------");
+        console.log("\n✅ Agent completed task");
+
+        scratchpad += `\nAssistant: ${finalResponse}\n`;
+        scratchpadMessage.content = scratchpad;
         // Add the final summary to the conversation
         messages.push({
           role: "assistant",
-          content: choice.message.content || "",
+          content: finalResponse,
         });
-        return choice.message.content || "";
+        return finalResponse;
       }
 
       break;
     }
 
+    console.error("❌ Agent exited unexpectedly");
     throw new Error("AgentRunner: unexpected exit without final message");
   }
 }
