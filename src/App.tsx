@@ -182,7 +182,7 @@ export default function App() {
               className="px-2 py-1 text-sm text-red-300 hover:text-red-200 hover:bg-gray-600 rounded transition-colors"
               title="Add Market Movers"
             >
-              Market
+              Movers
             </button>
             <button
               onClick={() =>
