@@ -16,9 +16,9 @@ import { MarketAnalysis, type MarketAnalysisData } from "./MarketAnalysis";
 
 // Schema definitions for each visualization type
 export const visualizationSchemas = {
-  portfolioChart: {
-    name: "portfolioChart",
-    description: "Displays a portfolio value chart",
+  portfolioSummary: {
+    name: "portfolioSummary",
+    description: "Displays a portfolio value and asset summary",
     component: PortfolioSummary,
     schema: {
       type: "object",
@@ -201,7 +201,7 @@ export const visualizationSchemas = {
 
 // Map of module types to their React components (for backward compatibility)
 export const visualizationComponents = {
-  portfolioChart: PortfolioSummary,
+  portfolioSummary: PortfolioSummary,
   expensesTable: ExpensesTable,
   netWorthSummary: NetWorthSummary,
   stockPriceChart: StockPriceChart,

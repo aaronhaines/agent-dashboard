@@ -21,7 +21,7 @@ const defaultConfigs: Record<
   keyof typeof visualizationSchemas,
   Record<string, ConfigValue>
 > = {
-  portfolioChart: {
+  portfolioSummary: {
     timeframe: "1M",
     showReturns: false,
     trackedAssets: [

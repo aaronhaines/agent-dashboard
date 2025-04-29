@@ -33,6 +33,7 @@ const defaultConfigs: Record<string, ModuleConfig> = {
   companyNews: { company: "AAPL", limit: 5 },
   financialSnapshot: { showChart: true },
   marketAnalysis: { showChart: true },
+  portfolioSummary: { showChart: true },
 };
 
 const toolList = Object.values(Tools).map((tool) => ({
@@ -127,12 +128,12 @@ export default function App() {
             <button
               onClick={() =>
                 Tools.addModule.handler({
-                  moduleType: "portfolioChart",
-                  config: defaultConfigs.portfolioChart,
+                  moduleType: "portfolioSummary",
+                  config: defaultConfigs.portfolioSummary,
                 })
               }
               className="px-2 py-1 text-sm text-blue-300 hover:text-blue-200 hover:bg-gray-600 rounded transition-colors"
-              title="Add Portfolio Chart"
+              title="Add Portfolio Summary"
             >
               Portfolio
             </button>
