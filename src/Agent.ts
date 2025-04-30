@@ -16,6 +16,10 @@ interface AgentOptions {
   };
 }
 
+interface RunOptions {
+  initialState?: Record<string, unknown>;
+}
+
 export class Agent {
   private openai: OpenAI;
   private model: string;
@@ -94,7 +98,8 @@ export class Agent {
 
   public async run(
     userPrompt: string,
-    history: { role: "user" | "agent"; content: string }[]
+    history: { role: "user" | "agent"; content: string }[],
+    options: RunOptions = {}
   ): Promise<string> {
     // Track thought process for the response
     const thoughts: Array<{
@@ -121,8 +126,17 @@ export class Agent {
     // Add current user prompt
     messages.push({ role: "user", content: userPrompt });
 
-    // Initialize scratchpad
+    // Initialize scratchpad with initial state if provided
     let scratchpad = `User: ${userPrompt}\n`;
+    if (options.initialState) {
+      scratchpad += `\nInitial Dashboard State:\n${JSON.stringify(
+        options.initialState,
+        null,
+        2
+      )}\n`;
+      console.log("📊 Added initial state data to context");
+    }
+
     const scratchpadMessage: OpenAI.ChatCompletionMessageParam = {
       role: "system",
       name: "scratchpad",
@@ -130,29 +144,7 @@ export class Agent {
     };
     messages.push(scratchpadMessage);
 
-    // Step 1: Get the plan from the agent
-    console.log("\n🤔 Planning Phase Started");
-    const planResponse = await this.openai.chat.completions.create({
-      model: this.model,
-      messages,
-      tools: this.tools,
-      tool_choice: "none", // Only want a plan, not tool calls yet
-      temperature: 0,
-    });
-
-    const planMessage = planResponse.choices[0].message.content || "";
-    console.log("\n💭 Assistant's Planning Thoughts:");
-    console.log("--------------------------------");
-    console.log(planMessage);
-    console.log("--------------------------------");
-
-    thoughts.push({ type: "planning", content: planMessage });
-
-    scratchpad += `\nAgent plan:\n${planMessage}\n`;
-    scratchpadMessage.content = scratchpad;
-    messages.push({ role: "assistant", content: planMessage });
-
-    // Step 2: Execute the plan (allow tool calls)
+    // Execute the plan with tool calls enabled from the start
     console.log("\n🔄 Execution Phase Started");
     let iterationCount = 0;
     while (true) {
@@ -178,16 +170,24 @@ export class Agent {
       });
 
       const choice = response.choices[0];
+      const reasoning = choice.message.content || "(No explanation provided)";
 
-      if (choice.finish_reason === "tool_calls" && choice.message.tool_calls) {
-        const reasoning = choice.message.content || "(No explanation provided)";
+      // For first iteration, treat as planning phase
+      if (iterationCount === 1) {
+        console.log("\n💭 Assistant's Planning Thoughts:");
+        console.log("--------------------------------");
+        console.log(reasoning);
+        console.log("--------------------------------");
+        thoughts.push({ type: "planning", content: reasoning });
+      } else {
         console.log("\n💭 Assistant's Reasoning:");
         console.log("--------------------------------");
         console.log(reasoning);
         console.log("--------------------------------");
-
         thoughts.push({ type: "reasoning", content: reasoning });
+      }
 
+      if (choice.finish_reason === "tool_calls" && choice.message.tool_calls) {
         // Add assistant message to history
         messages.push(choice.message);
         console.log(

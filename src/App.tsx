@@ -88,9 +88,14 @@ export default function App() {
     setLoading(true);
 
     try {
-      // Pass chat history to the agent
+      // Get current dashboard state
+      const dashboardState = await Tools.getDashboardState.handler({});
+
+      // Pass chat history and initial state to the agent
       const history = messages.slice(-20);
-      const agentResponse = await dashboardAgent.run(userPrompt, history);
+      const agentResponse = await dashboardAgent.run(userPrompt, history, {
+        initialState: dashboardState,
+      });
       addMessage({ role: "agent", content: agentResponse });
     } catch {
       addMessage({
