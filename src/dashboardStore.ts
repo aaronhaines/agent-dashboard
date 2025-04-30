@@ -27,8 +27,8 @@ export const useDashboardStore = create<DashboardState>()(
       addModule: (moduleType, config) =>
         set((state) => ({
           modules: [
-            ...state.modules,
             { id: generateId(), moduleType, config, status: "loading" },
+            ...state.modules,
           ],
         })),
       removeModule: (id) =>
