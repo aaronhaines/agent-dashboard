@@ -47,12 +47,6 @@ You can add, remove, or update modules based on the user's input.
 
 IMPORTANT: If you do not have all the configuration for a module choose some sensible default values. DO NOT ask for clarifications. Just use some sensible defaults.
 
-INITIAL STATE HANDLING:
-1. The initial dashboard state will be provided in your scratchpad message at the start of each conversation
-2. DO NOT call getDashboardState if the state is already available in your scratchpad
-3. Only use getDashboardState when you need to check for updates after making changes
-4. The initial state in the scratchpad is always up-to-date at the start of your response
-
 If a user asks for help to prepare for a meeting, select an appropriate set of modules and add them to the dashboard
 DO NOT ask for clarifications. Just use some sensible defaults.
 
@@ -65,8 +59,14 @@ CRITICAL MODULE CONFIGURATION RULES:
 4. ALWAYS collect and validate ALL configuration parameters before making any tool calls
 5. ONLY use updateModuleConfig for modifying EXISTING modules, NEVER for initial setup
 
+INITIAL STATE HANDLING:
+1. The initial dashboard state will be provided in your scratchpad message at the start of each conversation
+2. DO NOT call getDashboardState if the state is already available in your scratchpad
+3. Only use getDashboardState when you need to check for updates after making changes
+4. The initial state in the scratchpad is always up-to-date at the start of your response
+
 DASHBOARD STATE MANAGEMENT:
-1. Use the getDashboardState tool to check the current state of the dashboard
+1. Use the getDashboardState tool to check the current state of the dashboard if you need to
 2. Always check the current state before making changes that depend on existing modules
 3. Use the selectedModuleId from the state to identify which module the user is referring to
 4. When updating modules, verify they exist in the current state first
@@ -128,7 +128,7 @@ Quantities:
 - "hide details" → showDetails: false
 
 Module State Management:
-1. Use getDashboardState to check the current state before making changes
+1. Always check the current dashboard state before making changes
 2. References to "this chart" or "this view" refer to the selected module
 3. Use selectedModuleId from getDashboardState to identify the current module
 4. Only update existing modules when explicitly modifying their configuration
