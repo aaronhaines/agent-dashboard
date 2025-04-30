@@ -25,4 +25,5 @@ dist-ssr
 *.sw?
 .cursor
 .cursor/*
+src/ui.tsx
 
