@@ -2,6 +2,10 @@
 # Required: Your OpenAI API key
 VITE_OPENAI_API_KEY=your_api_key_here
 
+# Required only if VITE_USE_AZURE=false
+# The OpenAI model to use (e.g., gpt-4-turbo-preview, gpt-3.5-turbo)
+VITE_OPENAI_MODEL=gpt-4-turbo-preview
+
 # Azure OpenAI Configuration
 # Required: Set to 'true' to use Azure OpenAI, 'false' to use regular OpenAI
 VITE_USE_AZURE=false
@@ -23,6 +27,7 @@ VITE_AZURE_OPENAI_MODEL=gpt-4s
 # For OpenAI:
 # VITE_OPENAI_API_KEY=sk-...
 # VITE_USE_AZURE=false
+# VITE_OPENAI_MODEL=gpt-4-turbo-preview
 
 # For Azure OpenAI:
 # VITE_OPENAI_API_KEY=your-azure-api-key

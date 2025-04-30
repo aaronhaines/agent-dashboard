@@ -14,6 +14,9 @@ if (!apiKey) {
 }
 
 const useAzure = import.meta.env.VITE_USE_AZURE === "true";
+const model = useAzure
+  ? import.meta.env.VITE_AZURE_OPENAI_MODEL
+  : import.meta.env.VITE_OPENAI_MODEL || "gpt-4-turbo-preview";
 const azureOptions = useAzure
   ? {
       azure: {
@@ -55,6 +58,7 @@ const toolFunctions = Object.fromEntries(
 
 const dashboardAgent = new Agent({
   apiKey: apiKey,
+  model: model,
   systemPrompt,
   tools: toolList,
   toolFunctions: toolFunctions,

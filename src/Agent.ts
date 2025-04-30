@@ -38,8 +38,7 @@ export class Agent {
         defaultHeaders: { "api-key": options.apiKey },
       }),
     });
-    this.model =
-      options.azure?.deploymentName || options.model || "gpt-4o-mini";
+    this.model = options.azure?.deploymentName || options.model || "gpt-4o";
     this.systemPrompt = options.systemPrompt;
     this.tools = options.tools;
     this.toolFunctions = options.toolFunctions;
