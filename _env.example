@@ -1,3 +1,20 @@
+# Frontend Configuration
+VITE_API_URL=http://localhost:3000/api
+
+# Backend Configuration
+PORT=3000
+OPENAI_API_KEY=your_api_key_here
+OPENAI_MODEL=gpt-4-turbo-preview
+
+# Azure OpenAI Configuration (Optional)
+# Set to 'true' to use Azure OpenAI, 'false' to use regular OpenAI
+USE_AZURE=false
+
+# Required only if USE_AZURE=true
+AZURE_BASE_URL=https://your-resource.openai.azure.com
+AZURE_API_VERSION=2024-02-15-preview
+AZURE_DEPLOYMENT_NAME=your-deployment-name
+
 # OpenAI Configuration
 # Required: Your OpenAI API key
 VITE_OPENAI_API_KEY=your_api_key_here

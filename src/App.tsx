@@ -8,25 +8,6 @@ import { systemPrompt } from "./systemPrompt";
 import { useChatStore } from "./chatStore";
 import { AgentResponse } from "./components/AgentResponse";
 
-const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
-if (!apiKey) {
-  console.error("OpenAI API key not found in environment variables");
-}
-
-const useAzure = import.meta.env.VITE_USE_AZURE === "true";
-const model = useAzure
-  ? import.meta.env.VITE_AZURE_OPENAI_MODEL
-  : import.meta.env.VITE_OPENAI_MODEL || "gpt-4-turbo-preview";
-const azureOptions = useAzure
-  ? {
-      azure: {
-        apiVersion: import.meta.env.VITE_AZURE_API_VERSION,
-        endpoint: import.meta.env.VITE_AZURE_BASE_URL,
-        deploymentName: import.meta.env.VITE_AZURE_OPENAI_MODEL,
-      },
-    }
-  : undefined;
-
 // Default configurations for each module type
 const defaultConfigs: Record<string, ModuleConfig> = {
   portfolioSummary: {
@@ -57,13 +38,10 @@ const toolFunctions = Object.fromEntries(
 ) as Record<string, ToolFunction>;
 
 const dashboardAgent = new Agent({
-  apiKey: apiKey,
-  model: model,
   systemPrompt,
   tools: toolList,
   toolFunctions: toolFunctions,
   toolTimeoutMs: 5000,
-  ...azureOptions,
 });
 
 export default function App() {

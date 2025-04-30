@@ -1,54 +1,78 @@
-# React + TypeScript + Vite
+# Financial Dashboard with AI Assistant
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern financial dashboard with an AI assistant powered by OpenAI's GPT models.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Interactive financial dashboard with various visualization modules
+- AI assistant for natural language interaction
+- Secure backend handling of OpenAI API calls
+- Support for both OpenAI and Azure OpenAI services
 
-## Expanding the ESLint configuration
+## Prerequisites
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Node.js 18 or higher
+- npm or yarn
+- OpenAI API key or Azure OpenAI credentials
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+## Setup
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+1. Clone the repository
+2. Copy `_env.example` to `.env` and fill in your configuration:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+   ```bash
+   cp _env.example .env
+   ```
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+3. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+4. Start the development server:
+
+   ```bash
+   # Start both frontend and backend
+   npm run dev:all
+
+   # Or start them separately:
+   npm run server  # Backend
+   npm run dev     # Frontend
+   ```
+
+5. Open your browser and navigate to `http://localhost:5173`
+
+## Environment Variables
+
+### Frontend
+
+- `VITE_API_URL`: Backend API URL (default: http://localhost:3000/api)
+
+### Backend
+
+- `PORT`: Backend server port (default: 3000)
+- `OPENAI_API_KEY`: Your OpenAI API key
+- `OPENAI_MODEL`: OpenAI model to use (default: gpt-4-turbo-preview)
+
+### Azure OpenAI (Optional)
+
+- `USE_AZURE`: Set to 'true' to use Azure OpenAI
+- `AZURE_BASE_URL`: Your Azure OpenAI endpoint
+- `AZURE_API_VERSION`: Azure OpenAI API version
+- `AZURE_DEPLOYMENT_NAME`: Your model deployment name in Azure
+
+## Development
+
+The project is structured as follows:
+
+- `/src`: Frontend React application
+  - `/components`: React components
+  - `/visualizations`: Dashboard visualization modules
+  - `/utils`: Utility functions
+- `/server`: Backend Node.js service
+  - `index.js`: Express server and OpenAI integration
+
+## Security
+
+The OpenAI API key is now securely stored on the backend server and never exposed to the client. All AI interactions are proxied through the backend API.
