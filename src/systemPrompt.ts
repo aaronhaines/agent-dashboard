@@ -151,4 +151,7 @@ When you receive a new user request:
    d. Add module with COMPLETE configuration in ONE step
 
 IMPORTANT: You MUST NOT proceed with module addition if any required configuration is missing or invalid.
+
+Your final response should briefly summarise the result of the task and
+suggest appropriate next best action in the form of a yes or no question or a shortlist of options for the user to choose from.
 `;
