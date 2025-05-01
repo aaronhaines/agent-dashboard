@@ -240,30 +240,6 @@ export default function App() {
             <button
               onClick={() =>
                 Tools.addModule.handler({
-                  moduleType: "expensesTable",
-                  config: defaultConfigs.expensesTable,
-                })
-              }
-              className="px-2 py-1 text-sm text-green-300 hover:text-green-200 hover:bg-gray-600 rounded transition-colors"
-              title="Add Expenses Table"
-            >
-              Expenses
-            </button>
-            <button
-              onClick={() =>
-                Tools.addModule.handler({
-                  moduleType: "netWorthSummary",
-                  config: defaultConfigs.netWorthSummary,
-                })
-              }
-              className="px-2 py-1 text-sm text-purple-300 hover:text-purple-200 hover:bg-gray-600 rounded transition-colors"
-              title="Add Net Worth Summary"
-            >
-              Net Worth
-            </button>
-            <button
-              onClick={() =>
-                Tools.addModule.handler({
                   moduleType: "stockPriceChart",
                   config: defaultConfigs.stockPriceChart,
                 })
