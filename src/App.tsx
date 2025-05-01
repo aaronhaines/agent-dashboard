@@ -6,6 +6,7 @@ import type { ToolFunction } from "./Agent";
 import type { ModuleConfig } from "./tools";
 import { systemPrompt } from "./systemPrompt";
 import { useChatStore } from "./chatStore";
+import { useEventStore } from "./eventStore";
 import { AgentResponse } from "./components/AgentResponse";
 
 const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
@@ -66,15 +67,70 @@ const dashboardAgent = new Agent({
   ...azureOptions,
 });
 
+const SUGGESTION_INTERVAL_MS = 10000; // 10 seconds
+
 export default function App() {
   const [userPrompt, setUserPrompt] = useState("");
   const [loading, setLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [chatOpen, setChatOpen] = useState(true);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
+  const lastSuggestionRef = useRef<number>(0);
 
   const messages = useChatStore((state) => state.messages);
   const addMessage = useChatStore((state) => state.addMessage);
+
+  // Add background suggestion system
+  useEffect(() => {
+    const generateSuggestion = async () => {
+      const eventStore = useEventStore.getState();
+      const recentEvents = eventStore.getRecentEvents(30); // Get last 30 seconds of events
+      if (recentEvents.length === 0) return;
+
+      // Clear events after successful suggestion
+      eventStore.clearEvents();
+
+      // Don't suggest if we've suggested recently
+      const now = Date.now();
+      if (now - lastSuggestionRef.current < SUGGESTION_INTERVAL_MS) return;
+      lastSuggestionRef.current = now;
+
+      const eventSummary = recentEvents
+        .map((e) => `${e.type} on ${e.moduleType} (${e.moduleId})`)
+        .join("\n");
+
+      const suggestionPrompt = `Based on these user interactions:\n${eventSummary}\n\n
+      Provide a concise analysis and next action recommendation. Only one action is needed. The action should be a question that the user can answer with a "yes" or "no".
+      IMPORTANT: Response must be no more than 25 words.
+      EXAMPLE OF GOOD RESPONSE: "I notice you're interested in the tech sector. Would you like to see the price history of the top five tech stocks?"
+      EXAMPLE OF BAD RESPONSE: "Given your interest in market movers, particularly in the technology sector, and your recent focus on Bank of America from the financial sector, it seems you're diversifying your interests across different sectors with a keen eye on volume movers. Would you like to explore more about the financial sector's performance and trends, similar to your interest in technology stocks?"`;
+
+      try {
+        const dashboardState = await Tools.getDashboardState.handler({});
+        const agentResponse = await dashboardAgent.run(suggestionPrompt, [], {
+          initialState: dashboardState,
+        });
+
+        // Add suggestion to chat with special flag
+        const suggestionMessage = {
+          role: "agent" as const,
+          content: JSON.stringify({
+            response: JSON.parse(agentResponse).response,
+            thoughts: [],
+            isDisplay: true,
+            isSuggestion: true,
+          }),
+        };
+
+        addMessage(suggestionMessage);
+      } catch (error) {
+        console.error("Failed to generate suggestion:", error);
+      }
+    };
+
+    const intervalId = setInterval(generateSuggestion, SUGGESTION_INTERVAL_MS);
+    return () => clearInterval(intervalId);
+  }, [addMessage]);
 
   useEffect(() => {
     if (chatEndRef.current) {

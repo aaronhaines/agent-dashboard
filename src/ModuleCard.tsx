@@ -1,6 +1,7 @@
 import { ModuleInstance, useDashboardStore } from "./dashboardStore";
 import { visualizationComponents } from "./visualizations";
 import { ResizableBox } from "react-resizable";
+import { useEventStore } from "./eventStore";
 import "react-resizable/css/styles.css";
 
 interface Props {
@@ -16,7 +17,22 @@ export function ModuleCard({ module }: Props) {
   const removeModule = useDashboardStore((state) => state.removeModule);
   const selectModule = useDashboardStore((state) => state.selectModule);
   const selectedModuleId = useDashboardStore((state) => state.selectedModuleId);
+  const addEvent = useEventStore((state) => state.addEvent);
   const isSelected = selectedModuleId === module.id;
+
+  const handleModuleSelect = () => {
+    if (!isSelected) {
+      selectModule(module.id);
+      addEvent({
+        type: "moduleSelect",
+        moduleId: module.id,
+        moduleType: module.moduleType,
+        selectedData: module.selectedData,
+      });
+    } else {
+      selectModule(null);
+    }
+  };
 
   const VisualizationComponent =
     visualizationComponents[
@@ -43,7 +59,7 @@ export function ModuleCard({ module }: Props) {
         className={`absolute inset-0 bg-gray-800 rounded-lg shadow-md flex flex-col cursor-pointer transition-all duration-200 ${
           isSelected ? "ring-2 ring-blue-500" : ""
         }`}
-        onClick={() => selectModule(isSelected ? null : module.id)}
+        onClick={handleModuleSelect}
       >
         <div className="flex-none p-2 flex justify-end">
           <button
