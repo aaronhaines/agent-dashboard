@@ -67,7 +67,7 @@ const dashboardAgent = new Agent({
   ...azureOptions,
 });
 
-const SUGGESTION_INTERVAL_MS = 10000; // 10 seconds
+const SUGGESTION_INTERVAL_MS = 5000; // 10 seconds
 
 export default function App() {
   const [userPrompt, setUserPrompt] = useState("");
@@ -170,6 +170,29 @@ export default function App() {
       setLoading(false);
     }
   }
+
+  const handleAcceptSuggestion = async () => {
+    // Simulate user saying "yes" to the suggestion
+    const userYesMessage = "yes";
+    addMessage({ role: "user", content: userYesMessage });
+    setLoading(true);
+
+    try {
+      const dashboardState = await Tools.getDashboardState.handler({});
+      const history = messages.slice(-20);
+      const agentResponse = await dashboardAgent.run(userYesMessage, history, {
+        initialState: dashboardState,
+      });
+      addMessage({ role: "agent", content: agentResponse });
+    } catch {
+      addMessage({
+        role: "agent",
+        content: "[Error: Failed to get response from agent]",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen h-screen bg-gray-900 flex flex-col text-gray-100 font-sans">
@@ -569,7 +592,10 @@ export default function App() {
                         {message.content}
                       </div>
                     ) : (
-                      <AgentResponse content={message.content} />
+                      <AgentResponse
+                        content={message.content}
+                        onAcceptSuggestion={handleAcceptSuggestion}
+                      />
                     )}
                   </div>
                 </div>

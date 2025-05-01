@@ -7,9 +7,13 @@ interface Thought {
 
 interface AgentResponseProps {
   content: string;
+  onAcceptSuggestion?: () => void;
 }
 
-export const AgentResponse: React.FC<AgentResponseProps> = ({ content }) => {
+export const AgentResponse: React.FC<AgentResponseProps> = ({
+  content,
+  onAcceptSuggestion,
+}) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   let response: string;
@@ -62,7 +66,7 @@ export const AgentResponse: React.FC<AgentResponseProps> = ({ content }) => {
   if (isSuggestion) {
     return (
       <div className="flex flex-col gap-2 p-4 rounded-lg bg-gray-800 border border-indigo-500/30">
-        <div className="flex items-center gap-2 text-indigo-400 text-sm font-medium mb-1">
+        <div className="flex items-center gap-2 text-indigo-400 text-sm font-medium">
           <svg
             className="w-4 h-4"
             fill="none"
@@ -80,6 +84,27 @@ export const AgentResponse: React.FC<AgentResponseProps> = ({ content }) => {
         </div>
         <div className="prose prose-invert max-w-none text-gray-100">
           {response}
+        </div>
+        <div className="flex justify-end mt-2">
+          <button
+            onClick={onAcceptSuggestion}
+            className="px-2 py-1 text-sm text-indigo-400 hover:text-indigo-300 transition-colors flex items-center gap-2"
+          >
+            <span>Accept</span>
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+          </button>
         </div>
       </div>
     );
