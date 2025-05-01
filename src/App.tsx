@@ -74,6 +74,7 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [chatOpen, setChatOpen] = useState(true);
+  const [suggestionsEnabled, setSuggestionsEnabled] = useState(true);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
   const lastSuggestionRef = useRef<number>(0);
 
@@ -82,6 +83,9 @@ export default function App() {
 
   // Add background suggestion system
   useEffect(() => {
+    // If suggestions are disabled, don't set up the interval
+    if (!suggestionsEnabled) return;
+
     const generateSuggestion = async () => {
       const eventStore = useEventStore.getState();
       const recentEvents = eventStore.getRecentEvents(30); // Get last 30 seconds of events
@@ -130,7 +134,7 @@ export default function App() {
 
     const intervalId = setInterval(generateSuggestion, SUGGESTION_INTERVAL_MS);
     return () => clearInterval(intervalId);
-  }, [addMessage]);
+  }, [addMessage, suggestionsEnabled]);
 
   useEffect(() => {
     if (chatEndRef.current) {
@@ -503,12 +507,42 @@ export default function App() {
               <h2 className="text-lg font-semibold text-blue-300">
                 Agent Chat
               </h2>
-              <button
-                onClick={() => useChatStore.getState().clearHistory()}
-                className="text-sm text-gray-400 hover:text-gray-300 transition-colors"
-              >
-                Clear History
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setSuggestionsEnabled(!suggestionsEnabled)}
+                  className={`flex items-center gap-2 px-2 py-1 rounded text-sm transition-colors ${
+                    suggestionsEnabled
+                      ? "text-green-300 hover:text-green-200"
+                      : "text-gray-400 hover:text-gray-300"
+                  }`}
+                  title={`${
+                    suggestionsEnabled ? "Disable" : "Enable"
+                  } suggestions`}
+                >
+                  <svg
+                    className={`w-4 h-4 transition-colors ${
+                      suggestionsEnabled ? "text-green-300" : "text-gray-400"
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                    />
+                  </svg>
+                  {suggestionsEnabled ? "Suggestions On" : "Suggestions Off"}
+                </button>
+                <button
+                  onClick={() => useChatStore.getState().clearHistory()}
+                  className="text-sm text-gray-400 hover:text-gray-300 transition-colors"
+                >
+                  Clear History
+                </button>
+              </div>
             </div>
             <div className="flex-1 overflow-y-auto mb-2 space-y-3 pr-1">
               {messages.length === 0 && (
