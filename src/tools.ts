@@ -92,11 +92,14 @@ export const Tools = {
     async () => {
       const state = useDashboardStore.getState();
       return {
-        modules: state.modules.map(({ id, moduleType, config }) => ({
-          id,
-          moduleType,
-          config,
-        })),
+        modules: state.modules.map(
+          ({ id, moduleType, config, selectedData }) => ({
+            id,
+            moduleType,
+            config,
+            selectedData,
+          })
+        ),
         selectedModuleId: state.selectedModuleId,
       };
     }

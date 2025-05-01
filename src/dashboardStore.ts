@@ -1,21 +1,51 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-export interface ModuleInstance {
+// Module-specific selection types
+export type ModuleSelectionType = {
+  marketMovers: MarketMover;
+  // Add other module selection types as needed
+  // stockChart: { timestamp: string; price: number };
+  // portfolioSummary: { assetId: string; holdings: number };
+};
+
+// Import the MarketMover type for proper typing
+interface MarketMover {
+  symbol: string;
+  name: string;
+  price: string;
+  change: string;
+  changePercent: string;
+  volume: string;
+}
+
+export interface ModuleInstance<
+  T extends keyof ModuleSelectionType = keyof ModuleSelectionType
+> {
   id: string;
-  moduleType: string;
-  config: Record<string, any>;
+  moduleType: T;
+  config: Record<string, unknown>;
   status?: "loading" | "ready" | "error";
-  data?: any;
+  data?: unknown;
+  selectedData?: ModuleSelectionType[T] | null;
+  setData?: (data: unknown) => void;
+  setSelectedData?: (data: ModuleSelectionType[T] | null) => void;
 }
 
 interface DashboardState {
   modules: ModuleInstance[];
   selectedModuleId: string | null;
-  addModule: (moduleType: string, config: Record<string, any>) => void;
+  addModule: (
+    moduleType: keyof ModuleSelectionType,
+    config: Record<string, unknown>
+  ) => void;
   removeModule: (id: string) => void;
-  updateModuleConfig: (id: string, newConfig: Record<string, any>) => void;
-  setModuleData: (id: string, data: any) => void;
+  updateModuleConfig: (id: string, newConfig: Record<string, unknown>) => void;
+  setModuleData: (id: string, data: unknown) => void;
+  setModuleSelectedData: <T extends keyof ModuleSelectionType>(
+    id: string,
+    selectedData: ModuleSelectionType[T] | null
+  ) => void;
   selectModule: (id: string | null) => void;
 }
 
@@ -27,7 +57,13 @@ export const useDashboardStore = create<DashboardState>()(
       addModule: (moduleType, config) =>
         set((state) => ({
           modules: [
-            { id: generateId(), moduleType, config, status: "loading" },
+            {
+              id: generateId(),
+              moduleType,
+              config,
+              status: "loading",
+              selectedData: null,
+            },
             ...state.modules,
           ],
         })),
@@ -40,13 +76,37 @@ export const useDashboardStore = create<DashboardState>()(
       updateModuleConfig: (id, newConfig) =>
         set((state) => ({
           modules: state.modules.map((m) =>
-            m.id === id ? { ...m, config: newConfig, status: "loading" } : m
+            m.id === id
+              ? {
+                  ...m,
+                  config: newConfig,
+                  status: "loading",
+                }
+              : m
           ),
         })),
       setModuleData: (id, data) =>
         set((state) => ({
           modules: state.modules.map((m) =>
-            m.id === id ? { ...m, data, status: "ready" } : m
+            m.id === id
+              ? {
+                  ...m,
+                  data,
+                  status: "ready",
+                }
+              : m
+          ),
+        })),
+      setModuleSelectedData: (id, selectedData) =>
+        set((state) => ({
+          modules: state.modules.map((m) =>
+            m.id === id
+              ? {
+                  ...m,
+                  selectedData:
+                    selectedData as ModuleSelectionType[typeof m.moduleType],
+                }
+              : m
           ),
         })),
       selectModule: (id) =>
@@ -56,14 +116,24 @@ export const useDashboardStore = create<DashboardState>()(
     }),
     {
       name: "dashboard-storage",
-      partialize: (state) => ({
-        modules: state.modules.map(({ id, moduleType, config }) => ({
-          id,
-          moduleType,
-          config,
-        })),
-        selectedModuleId: state.selectedModuleId,
-      }),
+      partialize: (state) => {
+        const persistedState = {
+          modules: state.modules.map(
+            ({ id, moduleType, config, selectedData }) => ({
+              id,
+              moduleType,
+              config,
+              selectedData: selectedData || null,
+            })
+          ),
+          selectedModuleId: state.selectedModuleId,
+        };
+        console.log(
+          "Dashboard state captured:",
+          JSON.stringify(persistedState, null, 2)
+        );
+        return persistedState;
+      },
     }
   )
 );
