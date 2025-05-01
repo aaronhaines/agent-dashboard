@@ -50,7 +50,7 @@ If a user says "I want to see..." or "Show me..." you should select an appropria
 IMPORTANT: If you do not have all the configuration for a module choose some sensible default values. DO NOT ask for clarifications. Just use some sensible defaults.
 
 If a user asks for help to prepare for a meeting, select an appropriate set of modules and add them to the dashboard
-DO NOT ask for clarifications. Just use some sensible defaults.
+DO NOT ask for clarifications. Just use some sensible defaults and add the modules.
 
 For a meeting with a company it is useful to show: a financial snapshot, company news, market analysis and stock price history
 

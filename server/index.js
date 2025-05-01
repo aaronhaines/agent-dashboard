@@ -12,22 +12,79 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Initialize OpenAI
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Initialize OpenAI with appropriate configuration
+function initializeOpenAI() {
+  const useAzure = process.env.USE_AZURE === "true";
 
-// Validate OpenAI configuration
-if (!process.env.OPENAI_API_KEY) {
-  console.error("⚠️ OpenAI API key not found in environment variables");
+  if (useAzure) {
+    if (
+      !process.env.AZURE_BASE_URL ||
+      !process.env.AZURE_API_VERSION ||
+      !process.env.AZURE_DEPLOYMENT_NAME
+    ) {
+      throw new Error("Missing required Azure OpenAI configuration");
+    }
+
+    return new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+      baseURL: process.env.AZURE_BASE_URL,
+      defaultQuery: { "api-version": process.env.AZURE_API_VERSION },
+      defaultHeaders: { "api-key": process.env.OPENAI_API_KEY },
+    });
+  } else {
+    if (!process.env.OPENAI_API_KEY) {
+      throw new Error("Missing OpenAI API key");
+    }
+
+    return new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+  }
 }
 
-console.log("🚀 Initializing server with configuration:");
-console.log(`- Port: ${port}`);
-console.log(`- Model: ${process.env.OPENAI_MODEL || "gpt-4-turbo-preview"}`);
-console.log(
-  `- Azure: ${process.env.USE_AZURE === "true" ? "enabled" : "disabled"}`
-);
+// Get the model name based on configuration
+function getModelName() {
+  const useAzure = process.env.USE_AZURE === "true";
+  if (useAzure) {
+    return process.env.AZURE_DEPLOYMENT_NAME;
+  }
+  return process.env.OPENAI_MODEL || "gpt-4-turbo-preview";
+}
+
+let openai;
+try {
+  openai = initializeOpenAI();
+  console.log("🚀 Initializing server with configuration:");
+  console.log(`- Port: ${port}`);
+  console.log(`- Model: ${getModelName()}`);
+  console.log(
+    `- Azure: ${process.env.USE_AZURE === "true" ? "enabled" : "disabled"}`
+  );
+  if (process.env.USE_AZURE === "true") {
+    console.log(`- Azure Base URL: ${process.env.AZURE_BASE_URL}`);
+    console.log(`- Azure API Version: ${process.env.AZURE_API_VERSION}`);
+    console.log(`- Azure Deployment: ${process.env.AZURE_DEPLOYMENT_NAME}`);
+  }
+} catch (error) {
+  console.error("❌ Error initializing OpenAI:", error.message);
+  process.exit(1);
+}
+
+// Helper function for OpenAI chat completion
+async function createChatCompletion(messages, tools = null) {
+  const params = {
+    model: getModelName(),
+    messages,
+    temperature: 0,
+  };
+
+  if (tools) {
+    params.tools = tools;
+    params.tool_choice = "auto";
+  }
+
+  return await openai.chat.completions.create(params);
+}
 
 // Agent endpoint
 app.post("/api/agent/run", async (req, res) => {
@@ -80,32 +137,27 @@ app.post("/api/agent/run", async (req, res) => {
       // Summarize scratchpad if too long
       if (scratchpad.length > 2000) {
         console.log("📝 Summarizing long scratchpad...");
-        const summaryResponse = await openai.chat.completions.create({
-          model: process.env.OPENAI_MODEL || "gpt-4-turbo-preview",
-          messages: [
-            {
-              role: "system",
-              content:
-                "You are a helpful assistant that summarizes agent reasoning and tool call history.",
-            },
-            {
-              role: "user",
-              content:
-                "Summarize the following agent history, focusing on key actions, tool calls, and results. Be concise but preserve important details.",
-            },
-            {
-              role: "assistant",
-              content:
-                "I'll summarize the history, focusing on key actions and outcomes.",
-            },
-            {
-              role: "user",
-              content: scratchpad.slice(0, -1000),
-            },
-          ],
-          temperature: 0,
-          max_tokens: 256,
-        });
+        const summaryResponse = await createChatCompletion([
+          {
+            role: "system",
+            content:
+              "You are a helpful assistant that summarizes agent reasoning and tool call history.",
+          },
+          {
+            role: "user",
+            content:
+              "Summarize the following agent history, focusing on key actions, tool calls, and results. Be concise but preserve important details.",
+          },
+          {
+            role: "assistant",
+            content:
+              "I'll summarize the history, focusing on key actions and outcomes.",
+          },
+          {
+            role: "user",
+            content: scratchpad.slice(0, -1000),
+          },
+        ]);
 
         const summary = summaryResponse.choices[0].message.content || "";
         scratchpad = `Summary of earlier history: ${summary}\n\nRecent history:\n${scratchpad.slice(
@@ -115,13 +167,7 @@ app.post("/api/agent/run", async (req, res) => {
         console.log("✅ Scratchpad summarized");
       }
 
-      const response = await openai.chat.completions.create({
-        model: process.env.OPENAI_MODEL || "gpt-4-turbo-preview",
-        messages,
-        tools,
-        tool_choice: "auto",
-        temperature: 0,
-      });
+      const response = await createChatCompletion(messages, tools);
 
       const choice = response.choices[0];
       const reasoning = choice.message.content || "(No explanation provided)";
@@ -215,13 +261,7 @@ app.post("/api/agent/tool-result", async (req, res) => {
 
     // Continue the conversation
     console.log("🤖 Continuing conversation with OpenAI");
-    const response = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL || "gpt-4-turbo-preview",
-      messages: messageArray,
-      tools: tools,
-      tool_choice: "auto",
-      temperature: 0,
-    });
+    const response = await createChatCompletion(messageArray, tools);
 
     console.log("✅ Got response from OpenAI");
     res.json({ message: response.choices[0].message });
@@ -229,6 +269,16 @@ app.post("/api/agent/tool-result", async (req, res) => {
     console.error("❌ Error processing tool result:", error);
     res.status(500).json({ error: error.message });
   }
+});
+
+// Health check endpoint
+app.get("/api/health", (req, res) => {
+  const useAzure = process.env.USE_AZURE === "true";
+  res.json({
+    status: "healthy",
+    provider: useAzure ? "azure" : "openai",
+    model: getModelName(),
+  });
 });
 
 app.listen(port, () => {
